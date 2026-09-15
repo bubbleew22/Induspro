@@ -1,0 +1,1246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>IndusPro — Industrial Instrumentation Suite (Offline)</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d141c;--panel:#131e29;--card:#182634;--txt:#e8f0f7;--mut:#8fa6ba;--acc:#00b4d8;--acc2:#00e5c3;--ok:#2ecc71;--warn:#f5a623;--bad:#ff5c5c;--line:#24384c;--elb:#2c4258}
+body.light{--bg:#eef2f6;--panel:#fff;--card:#f6f9fc;--txt:#182430;--mut:#5b7080;--line:#d5dfe8;--elb:#c9d7e3}
+body{background:var(--bg);color:var(--txt);font:14px/1.45 'Segoe UI',system-ui,Arial,sans-serif}
+header{position:sticky;top:0;z-index:50;background:var(--panel);border-bottom:1px solid var(--line);padding:8px 12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.brand{font-weight:700;font-size:16px;white-space:nowrap}
+.tag{font-size:10px;background:var(--acc);color:#00222b;border-radius:4px;padding:1px 6px;font-weight:700}
+#tabs{display:flex;gap:4px;overflow-x:auto;flex:1}
+.tabbtn{background:transparent;color:var(--mut);border:1px solid transparent;border-radius:8px;padding:6px 10px;cursor:pointer;white-space:nowrap;font-size:13px}
+.tabbtn.active{background:var(--acc);color:#00222b;font-weight:700}
+.tabbtn:hover{color:var(--txt)}
+#themeBtn{background:var(--card);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer}
+main{padding:12px;max-width:1400px;margin:0 auto}
+.tab{display:none}.tab.active{display:block}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px}
+.wide{grid-column:1/-1}
+h3{font-size:14px;margin-bottom:8px;color:var(--acc)}
+h4{font-size:13px;margin:8px 0 4px;color:var(--acc2)}
+label{display:block;margin:6px 0;font-size:12.5px;color:var(--mut)}
+input,select{background:var(--panel);color:var(--txt);border:1px solid var(--line);border-radius:6px;padding:6px 8px;font:inherit;width:100%}
+input[type=checkbox]{width:auto}
+input[type=range]{padding:0}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.row>input,.row>select{width:auto}
+.btn{background:var(--panel);color:var(--txt);border:1px solid var(--line);border-radius:8px;padding:6px 12px;cursor:pointer;font:inherit}
+.btn.acc{background:var(--acc);color:#00222b;font-weight:700;border-color:var(--acc)}
+.btn.danger{background:var(--bad);color:#fff;border-color:var(--bad)}
+.btn:active{transform:scale(.97)}
+.big{font-size:22px;font-weight:700;margin:4px 0}
+.mid{font-size:17px;font-weight:700;margin:3px 0}
+.mut{color:var(--mut);font-size:12px}
+.pill{display:inline-block;border-radius:20px;padding:2px 10px;font-size:12px;font-weight:700}
+.ok{background:rgba(46,204,113,.15);color:var(--ok)}
+.warn{background:rgba(245,166,35,.15);color:var(--warn)}
+.bad{background:rgba(255,92,92,.15);color:var(--bad)}
+.zoneA{background:#2ecc71;color:#06281a}.zoneB{background:#a3e635;color:#1c2a05}
+.zoneC{background:#f5a623;color:#3a2503}.zoneD{background:#ff5c5c;color:#fff}
+table{width:100%;border-collapse:collapse;font-size:12.5px}
+th,td{border:1px solid var(--line);padding:4px 6px;text-align:left}
+th{background:var(--panel);color:var(--acc)}
+.twrap{max-height:300px;overflow:auto;border:1px solid var(--line);border-radius:8px}
+canvas{width:100%;background:var(--panel);border:1px solid var(--line);border-radius:8px;display:block}
+#ptab{display:grid;grid-template-columns:repeat(18,minmax(0,1fr));gap:3px}
+.el{aspect-ratio:1;border-radius:5px;background:var(--elb);cursor:pointer;position:relative;font-size:9px;overflow:hidden;border:1px solid transparent}
+.el b{display:block;text-align:center;font-size:12px}
+.el span{position:absolute;top:1px;left:3px;opacity:.8}
+.el .m{position:absolute;bottom:0;left:0;right:0;text-align:center;font-size:7.5px;opacity:.75}
+.el:hover{border-color:var(--acc)}.el.sel{outline:2px solid var(--acc)}.el.dim{opacity:.15}
+.c-al{background:#e74c3c;color:#fff}.c-ae{background:#e67e22;color:#fff}.c-tm{background:#8e44ad;color:#fff}
+.c-po{background:#16a085;color:#fff}.c-me{background:#f1c40f;color:#333}.c-nm{background:#2ecc71;color:#0b2e1b}
+.c-ha{background:#d81b60;color:#fff}.c-ng{background:#3498db;color:#fff}.c-la{background:#2980b9;color:#fff}.c-ac{background:#d35400;color:#fff}
+#calKeypad{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
+#calKeypad .btn{padding:9px 0;font-size:14px}
+.foot{color:var(--mut);font-size:11px;margin:14px 0;line-height:1.6}
+details{margin:6px 0}summary{cursor:pointer;color:var(--acc);font-size:13px}
+@media(max-width:700px){#ptab{grid-template-columns:repeat(9,1fr)}.el{font-size:8px}}
+/* Hydraulic tech theme */
+#tab-hydraulic .card,#tab-valvesim .card{border-left:3px solid var(--acc)}
+#tab-hydraulic h3,#tab-valvesim h3{letter-spacing:.6px;text-transform:uppercase;font-size:12.5px}
+#tab-valvesim canvas{background:radial-gradient(120% 120% at 50% 30%,#0c2233 0%,#050d14 100%);box-shadow:inset 0 0 40px rgba(0,180,216,.08)}
+body.light #tab-valvesim canvas{background:radial-gradient(120% 120% at 50% 30%,#e8f1f8 0%,#c9d9e6 100%)}
+#tab-valvesim .btn:disabled{opacity:.35;cursor:not-allowed}
+.hydro-pill{display:inline-block;font-family:Consolas,monospace;font-size:11px;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:2px 8px;margin:2px}
+#tab-valvesim,#tab-hydraulic{font-weight:600}
+#tab-valvesim .pill,#tab-valvesim b{font-weight:800}
+#tab-valvesim .mut,#tab-valvesim label{font-weight:600}
+#tab-valvesim .btn{font-weight:700;letter-spacing:.3px}
+#tab-valvesim h3,#tab-valvesim .card table th{font-weight:800}
+#tab-valvesim canvas{font-weight:700}
+html{overflow-y:scroll;scrollbar-gutter:stable}
+@media(max-width:700px){main{padding:8px}.tabbtn{padding:6px 8px;font-size:12px}canvas{border-radius:6px}}
+
+@media(max-width:700px){
+ header{flex-wrap:wrap}
+ #tabs{order:3;flex-basis:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;min-width:0}
+ .brand{flex:1}
+}
+</style>
+<link rel="manifest" href="manifest.json">
+</head>
+<body>
+<header>
+  <div class="brand">⚙️ IndusPro <span class="tag">OFFLINE READY</span></div>
+  <nav id="tabs"></nav>
+  <button id="themeBtn">☀️</button>
+</header>
+<main>
+
+<!-- ================= 1. INSTRUMENTS ================= -->
+<section id="tab-instruments" class="tab active"><div class="grid">
+  <div class="card">
+    <h3>4–20 mA Transmitter Simulator</h3>
+    <label>Type <select id="insType"><option value="p">Pressure</option><option value="f">Flow (DP)</option><option value="t">Temperature</option><option value="l">Level</option></select></label>
+    <div class="row">Range: <input id="insMin" type="number" value="0" style="width:80px"> – <input id="insMax" type="number" value="10" style="width:80px"> <input id="insUnit" value="bar" style="width:70px"></div>
+    <label>Mode <select id="insMode"><option value="auto">Auto (process sim + noise)</option><option value="man">Manual (drive PV)</option></select></label>
+    <label>Setpoint / PV <input id="insSP" type="range" min="0" max="1000" value="500"></label>
+    <div class="big">PV: <span id="insPV">–</span> <span id="insUnit2">bar</span></div>
+    <div class="mid">Loop current: <span id="insMA">–</span> mA</div>
+    <div><span id="insAlarm" class="pill ok">NORMAL</span></div>
+    <div class="row">Alarm HH% <input id="insHH" type="number" value="90" style="width:70px"> LL% <input id="insLL" type="number" value="10" style="width:70px"></div>
+    <label><input type="checkbox" id="insSqrt"> Square-root extraction (DP flow)</label>
+    <div class="row"><button class="btn acc" id="insStart">▶ Start</button><button class="btn" id="insStop">⏸ Stop</button></div>
+    <h4>mA → PV converter</h4>
+    <div class="row"><input id="insMaIn" type="number" value="12" step="0.1" style="width:90px"> mA <button class="btn" id="insConv">→</button> <b id="insConvOut"></b></div>
+  </div>
+  <div class="card"><h3>Realtime Trend (PV / mA×10)</h3><canvas id="insCv" height="200"></canvas>
+    <div class="mut">Blue = PV, Cyan = mA×10 (scale match). Live process lag + noise simulation.</div></div>
+  <div class="card"><h3>5-Point Calibration Check</h3><div class="twrap"><table id="insCal"></table></div>
+    <div class="mut">0/25/50/75/100% → ideal mA (with LRV/URV). Field calibrate against these.</div></div>
+  <div class="card wide"><h3>History & Alarm Log <button class="btn" id="insCsv">⬇ CSV</button> <button class="btn danger" id="insClr">Clear</button></h3>
+    <div class="twrap"><table id="insTbl"></table></div></div>
+  <div class="card wide"><h3>PID Loop Simulator (realtime)</h3>
+    <div class="row">Kp <input id="pidKp" type="number" value="2" step="0.1" style="width:70px"> Ki <input id="pidKi" type="number" value="0.4" step="0.05" style="width:70px"> Kd <input id="pidKd" type="number" value="0.2" step="0.05" style="width:70px">
+    <button class="btn acc" id="pidStart">▶ Run</button><button class="btn" id="pidStop">⏸</button><button class="btn" id="pidStep">Step SP 50→80</button><button class="btn" id="pidReset">Reset</button></div>
+    <canvas id="pidCv" height="180"></canvas>
+    <div class="mut">First-order process. Tune Kp/Ki/Kd — observe overshoot, oscillation, settling. SP dashed = setpoint.</div></div>
+</div></section>
+
+<!-- ================= 2. MOTORS ================= -->
+<section id="tab-motors" class="tab"><div class="grid">
+  <div class="card">
+    <h3>Motor Calculator (AC 1φ/3φ & DC)</h3>
+    <label>Type <select id="motPh"><option value="3">3-Phase AC</option><option value="1">1-Phase AC</option><option value="0">DC</option></select></label>
+    <div class="row">V <input id="motV" type="number" value="400" style="width:90px"> I <input id="motI" type="number" value="10" style="width:90px"> PF <input id="motPF" type="number" value="0.85" step="0.01" style="width:80px"></div>
+    <div class="row">η% <input id="motEff" type="number" value="92" style="width:80px"> RPM <input id="motRpm" type="number" value="1450" style="width:90px"></div>
+    <div class="row">f Hz <input id="motF" type="number" value="50" style="width:70px"> Poles <select id="motPoles"><option>2</option><option selected>4</option><option>6</option><option>8</option><option>10</option><option>12</option></select></div>
+    <button class="btn acc" id="motCalc">Calculate</button>
+    <div id="motOut"></div>
+    <details><summary>Formulas</summary><div class="mut">3φ: P=√3·V·I·PF·η | 1φ: P=V·I·PF·η | DC: P=V·I·η<br>T(N·m)=9550·P(kW)/RPM &nbsp; Ns=120f/p &nbsp; slip=(Ns−N)/Ns<br>HP=kW/0.7457 &nbsp; Inrush (DOL)≈6–8×In, Star-Delta≈⅓×DOL</div></details>
+  </div>
+  <div class="card"><h3>Realtime Load Simulator</h3>
+    <div class="row">Rated kW <input id="motRated" type="number" value="7.5" style="width:80px"> Load <input id="motLoad" type="range" min="0" max="120" value="70" style="width:120px"> <b id="motLoadV">70%</b></div>
+    <div class="row"><button class="btn acc" id="motStart">▶ Start</button><button class="btn" id="motStop">⏸ Stop</button></div>
+    <canvas id="motCv" height="190"></canvas>
+    <div class="mut">Blue=kW out, Cyan=Current, Orange=PF×10. Typical induction-motor curves vs load.</div></div>
+  <div class="card wide"><h3>Load Log <button class="btn" id="motCsv">⬇ CSV</button> <button class="btn danger" id="motClr">Clear</button></h3>
+    <div class="twrap"><table id="motTbl"></table></div></div>
+  <div class="card"><h3>Reference: Sync Speed (50 Hz)</h3><div class="twrap"><table id="motSync"></table></div></div>
+  <div class="card"><h3>Starting Methods</h3><table>
+    <tr><th>Method</th><th>Start I</th><th>Start T</th></tr>
+    <tr><td>DOL</td><td>6–8×In</td><td>1.5×Tn</td></tr>
+    <tr><td>Star-Delta</td><td>~2–2.6×In</td><td>⅓×DOL</td></tr>
+    <tr><td>Soft Starter</td><td>2–4×In</td><td>adjustable</td></tr>
+    <tr><td>VFD</td><td>≈In</td><td>adjustable</td></tr></table></div>
+</div></section>
+
+<!-- ================= 3. WIRES ================= -->
+<section id="tab-wires" class="tab"><div class="grid">
+  <div class="card"><h3>Voltage Drop Calculator</h3>
+    <div class="row">I <input id="vdI" type="number" value="20" style="width:80px"> A &nbsp; L <input id="vdL" type="number" value="50" style="width:80px"> m &nbsp; V <input id="vdV" type="number" value="230" style="width:80px"></div>
+    <div class="row">Phase <select id="vdPh"><option value="1">1-φ</option><option value="3">3-φ</option></select> Metal <select id="vdMe"><option value="cu">Copper</option><option value="al">Aluminium</option></select> Size <select id="vdSize"></select> Max% <input id="vdMax" type="number" value="3" style="width:60px"></div>
+    <button class="btn acc" id="vdGo">Calculate</button><div id="vdOut"></div>
+    <div class="mut">VD(1φ)=2·I·L·ρ/A &nbsp; VD(3φ)=√3·I·L·ρ/A &nbsp; ρ₇₅°C: Cu=0.021, Al=0.034 Ω·mm²/m</div></div>
+  <div class="card wide"><h3>Ampacity — NEC 310.16 (75°C & 90°C columns, ≤3 conductors, 30°C)</h3>
+    <div class="row">Show: <select id="ampMe"><option value="both">Cu + Al</option><option value="cu">Cu only</option><option value="al">Al only</option></select></div>
+    <div class="twrap"><table id="ampTbl"></table></div>
+    <div class="mut">⚠ Verify against latest NEC/local code. 14–12 AWG Cu considered 15A/20A OCPD per 240.4(D).</div></div>
+  <div class="card"><h3>Derating Factors</h3><table>
+    <tr><th>Condition</th><th>Factor</th></tr>
+    <tr><td>Ambient 31–35°C</td><td>0.88</td></tr><tr><td>36–40°C</td><td>0.82</td></tr><tr><td>41–45°C</td><td>0.75</td></tr>
+    <tr><td>4–6 conductors bundled</td><td>0.80</td></tr><tr><td>7–9</td><td>0.70</td></tr><tr><td>10–20</td><td>0.50</td></tr></table>
+    <div class="mut">Final ampacity = table × ambient × bundling. Terminal 75°C limit usually governs.</div></div>
+</div></section>
+
+<!-- ================= 4. BATTERY ================= -->
+<section id="tab-battery" class="tab"><div class="grid">
+  <div class="card"><h3>Battery Bank / Ah Calculator</h3>
+    <div class="row">Load <input id="batW" type="number" value="500" style="width:80px"> W &nbsp; Backup <input id="batH" type="number" value="5" style="width:70px"> h</div>
+    <div class="row">System V <input id="batV" type="number" value="24" style="width:70px"> DoD% <input id="batDod" type="number" value="50" style="width:70px"> η% <input id="batEff" type="number" value="90" style="width:70px"></div>
+    <button class="btn acc" id="batGo">Calculate</button><div id="batOut"></div>
+    <div class="mut">Ah = (W×h)/(V × DoD × η). Lead-acid DoD 50%, LiFePO₄ 80–90%.</div></div>
+  <div class="card"><h3>Charger Sizing</h3>
+    <div class="row">Bank Ah <input id="chAh" type="number" value="100" style="width:90px"></div>
+    <button class="btn acc" id="chGo">Calculate</button><div id="chOut"></div>
+    <div class="mut">C/10 standard, C/5 fast (lead-acid ≤C/5), Li follow BMS limit. Time ≈ Ah/A × 1.2.</div></div>
+  <div class="card"><h3>Series / Parallel Bank Builder</h3>
+    <div class="row">Cell V <input id="cbV" type="number" value="2" step="0.1" style="width:70px"> Cell Ah <input id="cbAh" type="number" value="100" style="width:70px"></div>
+    <div class="row">Series <input id="cbS" type="number" value="12" style="width:70px"> Parallel <input id="cbP" type="number" value="2" style="width:70px"></div>
+    <button class="btn acc" id="cbGo">Build</button><div id="cbOut"></div></div>
+  <div class="card"><h3>Chemistry Reference</h3><table>
+    <tr><th>Type</th><th>Nom V</th><th>DoD</th><th>Cycles</th></tr>
+    <tr><td>Lead-acid</td><td>2.0</td><td>50%</td><td>300–500</td></tr>
+    <tr><td>AGM</td><td>2.0</td><td>50–60%</td><td>500</td></tr>
+    <tr><td>LiFePO₄</td><td>3.2</td><td>80–90%</td><td>3000+</td></tr>
+    <tr><td>Li-ion NMC</td><td>3.7</td><td>80%</td><td>1000–2000</td></tr>
+    <tr><td>NiCd</td><td>1.2</td><td>80%</td><td>1500</td></tr></table></div>
+</div></section>
+
+<!-- ================= 5. PERIODIC TABLE ================= -->
+<section id="tab-periodic" class="tab"><div class="grid">
+  <div class="card wide"><h3>Periodic Table — 118 Elements</h3>
+    <div class="row"><input id="ptSearch" placeholder="Search: Fe / Iron / 26"></div>
+    <div id="ptab" style="margin-top:8px"></div>
+    <div class="mut" style="margin-top:6px">⬇ rows: Lanthanides (57–71) & Actinides (89–103)</div></div>
+  <div class="card"><h3>Element Detail</h3><div id="ptDetail" class="mut">Kisi element par click karein…</div></div>
+  <div class="card"><h3>Molar Mass Calculator</h3>
+    <div class="row"><input id="mmIn" placeholder="e.g. H2O, Ca(OH)2, Fe2(SO4)3" style="flex:1"><button class="btn acc" id="mmGo">=</button></div>
+    <div id="mmOut"></div></div>
+  <div class="card wide"><h3>Reaction Finder — e.g. <b>H2O + NO2</b></h3>
+    <div class="row"><input id="rxIn" placeholder="Reactants ya products likhein: H2O + NO2" style="flex:1"><button class="btn acc" id="rxGo">Find</button></div>
+    <div id="rxOut"></div>
+    <details><summary>All reactions in database</summary><div class="twrap"><table id="rxAll"></table></div></details></div>
+</div></section>
+
+<!-- ================= 6. BEARINGS ================= -->
+<section id="tab-bearings" class="tab"><div class="grid">
+  <div class="card"><h3>Bearing Number Decoder</h3>
+    <div class="row"><input id="brIn" placeholder="e.g. 6205, 6310, 6008" style="width:130px"><button class="btn acc" id="brGo">Decode</button></div>
+    <div id="brOut"></div>
+    <div class="mut">6xxx = deep-groove ball. Digit2 = size series (0 extra-light, 2 light, 3 medium). Last 2 = bore code: 00→10, 01→12, 02→15, 03→17, 04+→×5 mm.</div></div>
+  <div class="card"><h3>Defect Frequency Calculator</h3>
+    <div class="row">RPM <input id="bfRpm" type="number" value="1480" style="width:80px"> Balls <input id="bfN" type="number" value="9" style="width:60px"></div>
+    <div class="row">Ball d <input id="bfD" type="number" value="7.9" step="0.1" style="width:70px"> Pitch D <input id="bfPd" type="number" value="39" style="width:70px"> θ° <input id="bfAng" type="number" value="0" style="width:60px"></div>
+    <button class="btn acc" id="bfGo">Calculate</button><div id="bfOut"></div>
+    <div class="mut">FTF=fr/2(1−d/D·cosθ) · BPFO=n·fr/2(1−d/D·cosθ) · BPFI=n·fr/2(1+d/D·cosθ) · BSF=D·fr/2d·[1−(d/D·cosθ)²]</div></div>
+  <div class="card wide"><h3>Dimensions d×D×B (mm) — 6000/6200/6300 Series</h3><div class="twrap"><table id="brTbl"></table></div></div>
+  <div class="card"><h3>Bearing Types</h3><table>
+    <tr><th>Type</th><th>Series</th><th>Use</th></tr>
+    <tr><td>Deep groove ball</td><td>6xxx</td><td>Radial+axial, high speed</td></tr>
+    <tr><td>Angular contact</td><td>72xx/73xx</td><td>Axial 1-dir, pair them</td></tr>
+    <tr><td>Self-aligning</td><td>12xx/22xx</td><td>Misalignment</td></tr>
+    <tr><td>Cylindrical roller</td><td>NU/NJ</td><td>Heavy radial</td></tr>
+    <tr><td>Taper roller</td><td>302xx/322xx</td><td>Combined loads</td></tr>
+    <tr><td>Needle</td><td>HK/BK</td><td>Compact</td></tr>
+    <tr><td>Thrust ball</td><td>51xx/52xx</td><td>Axial only</td></tr>
+    <tr><td>Spherical roller</td><td>222xx/223xx</td><td>Heavy + misalign</td></tr></table>
+    <h4>Suffixes</h4><div class="mut">2RS=rubber seals · ZZ=metal shields · C3=clearance · K=taper bore · E1=optimized</div></div>
+</div></section>
+
+<!-- ================= 7. BREAKERS ================= -->
+<section id="tab-breakers" class="tab"><div class="grid">
+  <div class="card"><h3>Trip Curve Simulator (educational)</h3>
+    <div class="row">Curve <select id="tcCurve"><option>B</option><option selected>C</option><option>D</option></select> In <input id="tcIn" type="number" value="63" style="width:70px"> A</div>
+    <label>Fault ×In: <b id="tcMultV">3.0×</b><input id="tcMult" type="range" min="10" max="200" value="30"></label>
+    <div id="tcOut"></div>
+    <div class="mut">B: 3–5×In · C: 5–10×In · D: 10–20×In magnetic. Thermal approx t≈400/((I/In)²−1) s. ⚠ Simulation only — real curves manufacturer-specific.</div></div>
+  <div class="card"><h3>Breaker Family</h3><table>
+    <tr><th>Type</th><th>Range</th><th>Icu typ</th></tr>
+    <tr><td>MCB</td><td>≤125 A</td><td>6–10 kA</td></tr>
+    <tr><td>MCCB</td><td>16–1600 A</td><td>25–150 kA</td></tr>
+    <tr><td>ACB</td><td>630–6300 A</td><td>65–150 kA</td></tr>
+    <tr><td>VCB</td><td>3.3–36 kV</td><td>MV switching</td></tr>
+    <tr><td>RCCB/RCD</td><td>30/100/300 mA</td><td>shock/fire</td></tr>
+    <tr><td>RCBO</td><td>MCB+RCD</td><td>combined</td></tr></table></div>
+  <div class="card"><h3>Motor Trip Classes (IEC @7.2×Ir)</h3><table>
+    <tr><th>Class</th><th>Trip time</th><th>Use</th></tr>
+    <tr><td>10A</td><td>2–10 s</td><td>light start</td></tr>
+    <tr><td>10</td><td>4–10 s</td><td>std pumps/fans</td></tr>
+    <tr><td>20</td><td>6–20 s</td><td>high inertia</td></tr>
+    <tr><td>30</td><td>9–30 s</td><td>crushers/mixers</td></tr></table>
+    <h4>RCD Sensitivity</h4><div class="mut">30 mA = personel protection · 100 mA = equipment · 300 mA = fire protection. Type AC/A/B per waveform.</div></div>
+  <div class="card"><h3>Protection Checklist</h3><div class="mut">✓ In ≤ Iz (cable) · ✓ Icu ≥ Isc at panel · ✓ Selectivity upstream/downstream (time/current) · ✓ Motor: overload Class + SC protection (fuse or MCPB) · ✓ RCD within 40 ms at 5×IΔn</div></div>
+</div></section>
+
+<!-- ================= 8. PNEUMATICS ================= -->
+<section id="tab-pneumatic" class="tab"><div class="grid">
+  <div class="card"><h3>I/P Positioner Simulator (4–20 mA ↔ 3–15 psi)</h3>
+    <label>mA input: <b id="pnMaV">12.0 mA</b><input id="pnMa" type="range" min="40" max="200" value="120"></label>
+    <div id="pnOut"></div>
+    <div class="twrap"><table id="pnCal"></table></div>
+    <div class="mut">3–15 psi = 0.21–1.03 bar. Zero=4mA/3psi, Span=16mA/12psi. 5-point cal table up/down check karein.</div></div>
+  <div class="card"><h3>Gas Flow Cv Calculator (approx)</h3>
+    <div class="row">Cv <input id="cvCv" type="number" value="1" step="0.1" style="width:70px"> P1 <input id="cvP1" type="number" value="7" step="0.1" style="width:70px"> P2 <input id="cvP2" type="number" value="4" step="0.1" style="width:70px"> bar(a)</div>
+    <div class="row">SG <input id="cvG" type="number" value="0.65" step="0.01" style="width:70px"> T <input id="cvT" type="number" value="293" style="width:70px"> K</div>
+    <button class="btn acc" id="cvGo">Q calculate</button><div id="cvOut"></div>
+    <div class="mut">Q≈963·Cv·√(P2·ΔP/(G·T)) Nm³/h. ⚠ Approx — choked flow & vendor sizing check karein.</div></div>
+  <div class="card"><h3>Pneumatic Cylinder Force</h3>
+    <div class="row">Bore <input id="pnBore" type="number" value="63" style="width:70px"> mm &nbsp; Rod <input id="pnRod" type="number" value="20" style="width:70px"> mm &nbsp; p <input id="pnP" type="number" value="6" step="0.1" style="width:70px"> bar</div>
+    <button class="btn acc" id="pnGo">Calculate</button><div id="pnFOut"></div>
+    <div class="mut">F=p·A. Effective extend area uses full bore; retract subtracts rod area.</div></div>
+  <div class="card"><h3>Valve Nomenclature & Fail Modes</h3><table>
+    <tr><th>Valve</th><th>Function</th></tr><tr><td>3/2 NC</td><td>spring-return, closed at rest</td></tr>
+    <tr><td>5/2</td><td>double-acting cylinder, 2 positions</td></tr>
+    <tr><td>5/3 closed</td><td>mid-position: all blocked</td></tr>
+    <tr><td>5/3 exhaust</td><td>mid: A,B vented (float)</td></tr>
+    <tr><td>5/3 press.</td><td>mid: A,B pressurized</td></tr></table>
+    <div class="mut">Fail modes: FO (fail open), FC (fail close), FL (fail last). Safety valves → FC for hazardous media.</div></div>
+</div></section>
+
+<!-- ================= 9. HYDRAULICS ================= -->
+<section id="tab-hydraulic" class="tab"><div class="grid">
+  <div class="card"><h3>4/3 Directional Valve — Ports & Spools</h3>
+    <table><tr><th>Port</th><th>Meaning</th></tr>
+    <tr><td><b>P</b></td><td>Pressure (from pump)</td></tr><tr><td><b>T</b></td><td>Tank (return)</td></tr>
+    <tr><td><b>A, B</b></td><td>Work ports → actuator</td></tr><tr><td><b>L</b></td><td>Leak/case drain</td></tr><tr><td><b>X,Y</b></td><td>Pilot ports</td></tr></table>
+    <h4>Center Conditions</h4><table>
+    <tr><th>Spool</th><th>P</th><th>A/B</th><th>Effect</th></tr>
+    <tr><td>Closed</td><td>blocked</td><td>blocked</td><td>load holds, pump on relief</td></tr>
+    <tr><td>Tandem</td><td>→T</td><td>blocked</td><td>load holds, pump unloads ✓</td></tr>
+    <tr><td>Open (float)</td><td>→T</td><td>→T</td><td>cylinder floats</td></tr>
+    <tr><td>Float (A/B→T)</td><td>blocked</td><td>→T</td><td>pump holds, actuator floats</td></tr></table></div>
+  <div class="card"><h3>Hydraulic Power & Cylinder</h3>
+    <div class="row">Q <input id="hyQ" type="number" value="40" style="width:80px"> L/min &nbsp; p <input id="hyP" type="number" value="150" style="width:80px"> bar</div>
+    <div class="row">Bore <input id="hyB" type="number" value="80" style="width:70px"> Rod <input id="hyR" type="number" value="45" style="width:70px"> mm</div>
+    <button class="btn acc" id="hyGo">Calculate</button><div id="hyOut"></div>
+    <div class="mut">P(kW)=Q(L/min)·p(bar)/600 · F=p·A · v=Q/A · Pump: Q=disp(cm³)·rpm/1000 · Tank≈3×Q pump</div></div>
+  <div class="card"><h3>Live Schematic (4/3 valve + cylinder)</h3>
+ <svg viewBox="0 0 380 170" style="width:100%;background:linear-gradient(135deg,#081522,#0d2133);border:1px solid #1e3a52;border-radius:10px">
+<defs>
+<linearGradient id="gOilH" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#ff8c00"/><stop offset="1" stop-color="#ffc46b"/></linearGradient>
+<filter id="fGlowH" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="1.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+</defs>
+<path d="M16 152 h348" stroke="#3d5a75" stroke-width="2"/><text x="336" y="148" fill="#8fa6ba" font-size="8">TANK</text>
+<circle cx="40" cy="130" r="13" fill="#0f2436" stroke="#2ecc71" stroke-width="2" filter="url(#fGlowH)"/>
+<path d="M40 121 l5 9 h-10 z" fill="#2ecc71"/><text x="26" y="156" fill="#8fa6ba" font-size="8">PUMP</text>
+<line x1="40" y1="117" x2="40" y2="84" stroke="#ff8c00" stroke-width="3"/>
+<line x1="40" y1="84" x2="150" y2="84" stroke="url(#gOilH)" stroke-width="3" stroke-dasharray="10 7" filter="url(#fGlowH)"><animate attributeName="stroke-dashoffset" from="34" to="0" dur="0.8s" repeatCount="indefinite"/></line>
+<text x="56" y="78" fill="#ffb347" font-size="8" font-weight="bold">P</text>
+<rect x="94" y="52" width="24" height="26" fill="#0f2436" stroke="#ff5c5c" stroke-width="1.5"/>
+<path d="M94 72 l8 -9 h9" stroke="#ff5c5c" fill="none" stroke-width="1.5"/>
+<text x="86" y="46" fill="#ff5c5c" font-size="7">PRV</text>
+<path d="M118 65 h14 v87" stroke="#ff5c5c" stroke-width="1.5" fill="none" opacity="0.8"/>
+<rect x="150" y="60" width="42" height="48" fill="#123049" stroke="#00b4d8" stroke-width="1.8" filter="url(#fGlowH)"/>
+<rect x="196" y="60" width="42" height="48" fill="#0e2436" stroke="#3d5a75" stroke-width="1.2"/>
+<rect x="242" y="60" width="42" height="48" fill="#0e2436" stroke="#3d5a75" stroke-width="1.2"/>
+<text x="155" y="80" fill="#00e5c3" font-size="7">P→A</text><text x="155" y="98" fill="#00e5c3" font-size="7">B→T</text>
+<text x="200" y="82" fill="#54728c" font-size="7">P•T</text><text x="200" y="92" fill="#54728c" font-size="7">A/B blk</text>
+<text x="246" y="82" fill="#54728c" font-size="7">P→B</text><text x="246" y="98" fill="#54728c" font-size="7">A→T</text>
+<rect x="158" y="50" width="13" height="10" fill="#2ecc71"><animate attributeName="opacity" values="1;0.25;1" dur="1.2s" repeatCount="indefinite"/></rect>
+<text x="157" y="47" fill="#2ecc71" font-size="6">Y1</text>
+<rect x="250" y="50" width="13" height="10" fill="#1d3a52" stroke="#3d5a75"/><text x="249" y="47" fill="#54728c" font-size="6">Y2</text>
+<line x1="284" y1="70" x2="306" y2="70" stroke="#ff8c00" stroke-width="3" stroke-dasharray="9 6" filter="url(#fGlowH)"><animate attributeName="stroke-dashoffset" from="30" to="0" dur="0.6s" repeatCount="indefinite"/></line>
+<text x="288" y="64" fill="#ffb347" font-size="7">A</text>
+<line x1="284" y1="98" x2="296" y2="98" stroke="#00e5c3" stroke-width="2"/>
+<line x1="296" y1="98" x2="296" y2="140" stroke="#00e5c3" stroke-width="2"/>
+<line x1="296" y1="140" x2="368" y2="140" stroke="#00e5c3" stroke-width="2" stroke-dasharray="9 6"><animate attributeName="stroke-dashoffset" from="0" to="30" dur="0.7s" repeatCount="indefinite"/></line>
+<line x1="368" y1="140" x2="368" y2="118" stroke="#00e5c3" stroke-width="2"/>
+<text x="288" y="108" fill="#00e5c3" font-size="7">B</text>
+<rect x="306" y="52" width="62" height="66" rx="3" fill="#0c1c2b" stroke="#3d5a75" stroke-width="1.8"/>
+<rect x="308" y="54" width="32" height="62" fill="rgba(255,140,0,.18)"/>
+<rect x="342" y="54" width="24" height="62" fill="rgba(0,229,195,.10)"/>
+<rect x="340" y="70" width="12" height="30" fill="#c9d7e3"><animate attributeName="x" values="312;352;312" dur="6s" repeatCount="indefinite"/></rect>
+<text x="308" y="47" fill="#8fa6ba" font-size="7">CAP</text><text x="352" y="47" fill="#8fa6ba" font-size="7">ROD</text>
+<line x1="217" y1="108" x2="217" y2="152" stroke="#00b4d8" stroke-width="2.5" stroke-dasharray="8 6"><animate attributeName="stroke-dashoffset" from="28" to="0" dur="0.9s" repeatCount="indefinite"/></line>
+<circle cx="40" cy="24" r="14" fill="#0f2436" stroke="#2c4258" stroke-width="1.5"/>
+<line x1="40" y1="24" x2="40" y2="14" stroke="#f5a623" stroke-width="2" stroke-linecap="round"><animateTransform attributeName="transform" type="rotate" values="-70 40 24;70 40 24;-70 40 24" dur="7s" repeatCount="indefinite"/></line>
+<text x="30" y="17" fill="#f5a623" font-size="7" font-weight="bold">bar</text>
+</svg>
+    <div class="mut">Animated flow: P→A extend (green), B→T return (cyan). Spool shift karne par direction reverse hoti hai.</div></div>
+</div>
+  <div class="card"><h3>Oil & Cleanliness Reference</h3><table>
+    <tr><th>ISO VG</th><th>Best For</th><th>Temp</th></tr>
+    <tr><td>VG32</td><td>cold / high speed</td><td>20–40°C</td></tr>
+    <tr><td>VG46</td><td>standard industrial ✓</td><td>30–50°C</td></tr>
+    <tr><td>VG68</td><td>hot environment</td><td>40–60°C</td></tr></table>
+    <div class="mut">Optimal viscosity: 20–30 cSt. Temp >60°C → har 10°C rise par oil life ~½.<br>NAS 1638: servo valves → Class 6 · industrial → 8–9. Water: &lt;200 ppm (servo &lt;100).<br>Δp filter indicator &gt;3.5 bar → element change.</div></div>
+  <div class="card"><h3>ISO 1219 Symbol Legend</h3><div class="mut">
+    ▭ Square = valve position · arrows = flow path<br>
+    ⊣ T-shape = blocked port · ▽ triangle = fluid port<br>
+    ⋀ spring = return position · ▯ box = solenoid coil<br>
+    ○ dashed = pilot line · ◇ diamond = condition (OR/AND)<br>
+    EN a/b = solenoid designations · X/Y = pilot ports</div></div>
+</section>
+
+<!-- ================= 10. CONVERTERS ================= -->
+<section id="tab-convert" class="tab"><div class="grid">
+  <div class="card"><h3>Hex / Dec / Bin / Oct</h3>
+    <div class="row"><input id="bcIn" value="255" style="flex:1"><select id="bcBase" style="width:90px"><option value="10">Decimal</option><option value="16">Hex</option><option value="2">Binary</option><option value="8">Octal</option></select></div>
+    <button class="btn acc" id="bcGo">Convert</button><div id="bcOut"></div></div>
+  <div class="card"><h3>IEEE-754 Float32/64</h3>
+    <div class="row"><input id="flIn" value="123.456" style="flex:1"><button class="btn acc" id="flGo">Encode</button></div>
+    <div id="flOut"></div>
+    <h4>Hex → Float</h4>
+    <div class="row"><input id="flHex" placeholder="42F6E979" style="flex:1"><select id="flBits" style="width:110px"><option value="32">Float32</option><option value="64">Float64</option></select><button class="btn" id="flRev">Decode</button></div>
+    <div id="flOut2"></div></div>
+  <div class="card"><h3>Modbus Word Order (Float ↔ 2 Registers)</h3>
+    <div class="row"><input id="mbIn" value="123.456" style="flex:1"><button class="btn acc" id="mbGo">Show</button></div>
+    <div id="mbOut"></div>
+    <h4>Registers → Float</h4>
+    <div class="row"><input id="mbR1" placeholder="42F6" style="width:80px"><input id="mbR2" placeholder="E979" style="width:80px"><select id="mbOrder" style="width:90px"><option>ABCD</option><option>CDAB</option><option>BADC</option><option>DCBA</option></select><button class="btn" id="mbRev">Decode</button></div>
+    <div id="mbOut2"></div>
+    <div class="mut">ABCD=Big-endian · CDAB=word-swap (most common in PLCs) · BADC=byte-swap · DCBA=full reverse.</div></div>
+  <div class="card"><h3>Quick Reference</h3><table>
+    <tr><th>Item</th><th>Size</th></tr><tr><td>Word / Register</td><td>16 bit</td></tr>
+    <tr><td>DINT / Float32</td><td>32 bit (2 regs)</td></tr><tr><td>LINT / Float64</td><td>64 bit (4 regs)</td></tr>
+    <tr><td>S5Time</td><td>BCD 16-bit</td></tr><tr><td>Bool pack</td><td>8 per byte</td></tr></table></div>
+</div></section>
+
+<!-- ================= 11. NETWORK ================= -->
+<section id="tab-network" class="tab"><div class="grid">
+  <div class="card"><h3>Subnet Calculator (IPv4)</h3>
+    <div class="row"><input id="sbIp" value="192.168.1.10" style="flex:1"> / <input id="sbCidr" type="number" value="24" min="0" max="32" style="width:70px"><button class="btn acc" id="sbGo">Go</button></div>
+    <div id="sbOut"></div></div>
+  <div class="card"><h3>Link Status & Local IP</h3>
+    <div id="netStatus"></div>
+    <button class="btn acc" id="netIp">Detect local IP (WebRTC)</button><div id="netIpOut" class="mut"></div>
+    <div class="mut">Browser security ki wajah se local IP detection experimental hai.</div></div>
+  <div class="card wide"><h3>Subnet Live Probe — "kitne IP use ho rahe hain" (experimental)</h3>
+    <div class="row">Base <input id="scBase" value="192.168.1." style="width:130px"> From <input id="scFrom" type="number" value="1" style="width:60px"> To <input id="scTo" type="number" value="60" style="width:60px">
+    <button class="btn acc" id="scGo">Scan</button><button class="btn danger" id="scStop">Stop</button></div>
+    <div id="scProg" class="mut"></div>
+    <div class="twrap" style="max-height:200px"><table id="scTbl"></table></div>
+    <div class="mut">⚠ Browser CORS ki wajah se sirf "koi device respond kar raha hai" ka rough signal milta hai (no-cors probe). Real scan ke liye nmap / Advanced IP Scanner use karein. Range chhota rakhein.</div></div>
+  <div class="card wide"><h3>PROFIBUS vs PROFINET</h3><table>
+    <tr><th>Feature</th><th>PROFIBUS DP/PA</th><th>PROFINET</th></tr>
+    <tr><td>Physical</td><td>RS-485 twisted pair (DP), MBP (PA)</td><td>Industrial Ethernet, RJ45/M12</td></tr>
+    <tr><td>Speed</td><td>9.6 k–12 Mbit/s</td><td>100 Mbit/s–1G, RT/IRT ≤250 µs</td></tr>
+    <tr><td>Topology</td><td>Bus, terminators needed</td><td>Star/line/ring (MRP)</td></tr>
+    <tr><td>Addressing</td><td>Station address 0–126</td><td>IP + DCP device name</td></tr>
+    <tr><td>Diagnostics</td><td>Slave diag bits</td><td>LLDP, SNMP, web server</td></tr>
+    <tr><td>Hazardous</td><td>PA intrinsic safety</td><td>via remote I/O</td></tr></table>
+    <h4>Common Ports</h4><div class="mut">Modbus TCP 502 · S7 102 · PROFINET Ethertype 0x8892 · EtherNet/IP 44818/2222 · OPC UA 4840 · SNMP 161 · NTP 123</div></div>
+</div></section>
+
+<!-- ================= 12. VIBROMETER ================= -->
+<section id="tab-vibro" class="tab"><div class="grid">
+  <div class="card"><h3>Vibrometer — Realtime Simulator</h3>
+    <div class="row">RPM <input id="vRpm" type="number" value="1480" style="width:90px"> Group <select id="vGrp" style="width:80px"><option value="2">G2 ≤300kW</option><option value="1">G1 >300kW</option></select> Mount <select id="vMnt" style="width:100px"><option value="r">Rigid</option><option value="f">Flexible</option></select></div>
+    <div class="row">Balls <input id="vN" type="number" value="9" style="width:55px"> d <input id="vD" type="number" value="7.9" step="0.1" style="width:60px"> D <input id="vPd" type="number" value="39" style="width:60px"></div>
+    <label>Unbalance 1×: <b id="vUv">40%</b><input id="vUnbal" type="range" min="0" max="100" value="40"></label>
+    <label>Misalignment 2×: <b id="vMv">15%</b><input id="vMisal" type="range" min="0" max="100" value="15"></label>
+    <label>Bearing defect: <b id="vBv">10%</b><input id="vBear" type="range" min="0" max="100" value="10"></label>
+    <label>Looseness harmonics: <b id="vLv">5%</b><input id="vLoose" type="range" min="0" max="100" value="5"></label>
+    <div class="row"><button class="btn acc" id="vStart">▶ Start</button><button class="btn" id="vStop">⏸ Stop</button></div>
+    <div class="big">RMS: <span id="vRms">–</span> mm/s <span id="vZone" class="pill zoneA">–</span></div>
+    <div id="vFreqs" class="mut"></div>
+  </div>
+  <div class="card"><h3>Waveform (velocity)</h3><canvas id="vWave" height="140"></canvas>
+    <h3 style="margin-top:10px">Spectrum (DFT)</h3><canvas id="vSpec" height="160"></canvas>
+    <div class="twrap" style="margin-top:8px;max-height:150px"><table id="vPeaks"></table></div></div>
+  <div class="card"><h3>RMS Trend</h3><canvas id="vTrend" height="140"></canvas>
+    <div class="mut">ISO 10816-3 limits shown as reference line.</div></div>
+  <div class="card wide"><h3>History Log — ◀ Back / Forward ▶ navigation
+    <button class="btn" id="vPrev">◀ Older</button> <button class="btn" id="vNext">Newer ▶</button> <button class="btn" id="vLive">⏮ LIVE</button>
+    <button class="btn" id="vCsv">⬇ CSV</button> <button class="btn danger" id="vClr">Clear</button>
+    <span id="vNav" class="mut"></span></h3>
+    <div id="vSnap" class="mut">LIVE mode — snapshots har 5 s auto-save hote hain.</div>
+    <div class="twrap"><table id="vTbl"></table></div></div>
+  <div class="card"><h3>ISO 10816-3 Zones (mm/s RMS)</h3><table>
+    <tr><th>Machine</th><th>A/B</th><th>B/C</th><th>C/D</th></tr>
+    <tr><td>G1 rigid</td><td>2.3</td><td>4.5</td><td>7.1</td></tr>
+    <tr><td>G1 flexible</td><td>3.5</td><td>7.1</td><td>11.0</td></tr>
+    <tr><td>G2 rigid</td><td>1.4</td><td>2.8</td><td>4.5</td></tr>
+    <tr><td>G2 flexible</td><td>2.3</td><td>4.5</td><td>7.1</td></tr></table>
+    <div class="mut">A=new · B=unlimited long-term · C=limited operation · D=damage risk. G1>300kW, G2 15–300kW.</div></div>
+</div></section>
+
+<!-- ================= 13. HYPERPRO CALC ================= -->
+<section id="tab-calc" class="tab"><div class="grid">
+  <div class="card"><h3>HyperPro Scientific Calculator</h3>
+    <div class="row"><label style="margin:0"><input type="checkbox" id="calDeg" checked> Degrees</label>
+      <span class="mut">MEM: <b id="calMem">0</b></span></div>
+    <input id="calDisp" value="" placeholder="0" style="font-size:20px;text-align:right;margin:8px 0">
+    <div id="calKeypad"></div>
+    <div class="row" style="margin-top:8px"><button class="btn acc" id="calEq">=</button><button class="btn" id="calClr">C</button><button class="btn" id="calBack">⌫</button></div>
+    <div class="twrap" style="max-height:150px;margin-top:8px"><table id="calHist"></table></div></div>
+  <div class="card"><h3>Unit Converter</h3>
+    <div class="row"><select id="ucCat"></select></div>
+    <div class="row"><input id="ucVal" type="number" value="1" style="width:100px"><select id="ucFrom" style="width:110px"></select> → <select id="ucTo" style="width:110px"></select></div>
+    <div class="big" id="ucOut">–</div>
+    <h4>Constants</h4><div class="mut">g=9.80665 · π=3.14159 · e=2.71828 · R=8.314 J/mol·K · Nᴀ=6.022e23 · σ=5.67e-8 · ρ(Cu)=0.021 Ω·mm²/m</div></div>
+  <div class="card"><h3>Engineering Quick Formulas</h3><div class="mut">
+    Reynolds: Re=ρvD/μ &nbsp;·&nbsp; Bernoulli head: h=v²/2g<br>
+    DP flow: Q∝√ΔP &nbsp;·&nbsp; Orifice β=0.4–0.6 ideal<br>
+    Control valve: Cv=Q√(G/ΔP) (liquid)<br>
+    Thermocouple: J −210…1200°C · K −200…1372 · PT100 −50…500<br>
+    4–20mA loop budget: 24V − (I×R_total) > 0 (typ. ≥ 12V)<br>
+    Sound: Lp=20log10(p/p₀), p₀=20µPa<br>
+    Vibration: a=ω²·x (mm/s²), v=ω·x</div></div>
+</div></section>
+<!-- ================= 14. RTD / THERMOCOUPLE ================= -->
+<section id="tab-rtd" class="tab"><div class="grid">
+  <div class="card"><h3>RTD Calculator (PT100 / PT1000)</h3>
+    <label>Sensor <select id="rtdType"><option value="100">PT100 (R0=100Ω)</option><option value="1000">PT1000 (R0=1000Ω)</option></select></label>
+    <div class="row">Mode <select id="rtdMode"><option value="t2r">Temp → Resistance</option><option value="r2t">Resistance → Temp</option></select>
+    Value <input id="rtdVal" type="number" value="100" step="0.01" style="width:100px"></div>
+    <button class="btn acc" id="rtdGo">Calculate</button><div id="rtdOut"></div>
+    <details><summary>ITS-90 Formulas (Callendar–Van Dusen)</summary><div class="mut">Rt = R0(1 + A·t + B·t²), t≥0°C<br>t&lt;0: + C(t−100)t³<br>A=3.9083×10⁻³ · B=−5.775×10⁻⁷ · C=−4.183×10⁻¹²<br>Inverse (t≥0): t=(−A+√(A²−4B(1−r)))/(2B), r=R/R0</div></details></div>
+  <div class="card"><h3>RTD Reference Table</h3><div class="twrap"><table id="rtdTbl"></table></div>
+    <div class="mut">Tolerance: Class A ±(0.15+0.002|t|)°C · Class B ±(0.30+0.005|t|)°C<br>Wiring: 2-wire (lead error) · 3-wire (industry standard) · 4-wire (lab grade, zero lead error)</div></div>
+  <div class="card"><h3>Thermocouple Calculator (J/K/T/E)</h3>
+    <label>Type <select id="tcType"><option value="K">K (NiCr-NiAl) −200…1250°C</option><option value="J">J (Fe-CuNi) −100…1200°C</option><option value="T">T (Cu-CuNi) −200…400°C</option><option value="E">E (NiCr-CuNi) −200…900°C</option></select></label>
+    <div class="row">Mode <select id="tcMode"><option value="t2v">Temp → mV</option><option value="v2t">mV → Temp</option></select>
+    Value <input id="tcVal" type="number" value="100" step="0.01" style="width:90px"></div>
+    <div class="row">CJ (cold junction) °C <input id="tcCj" type="number" value="25" step="0.1" style="width:80px"></div>
+    <button class="btn acc" id="tcGo">Calculate</button><div id="tcOut"></div>
+    <div class="mut">Lookup @100°C steps + linear interpolation (±1–2°C approx). CJC: EMF(T) = measured mV + EMF(CJ). Certified accuracy ke liye NIST ITS-90 tables use karein.</div></div>
+  <div class="card"><h3>Transmitter Quick Setup (4–20mA)</h3>
+    <div class="row">Range <input id="txLo" type="number" value="0" style="width:80px"> to <input id="txHi" type="number" value="400" style="width:80px"> °C</div>
+    <div class="row">Measured <input id="txMa" type="number" value="12" step="0.1" style="width:80px"> mA</div>
+    <button class="btn acc" id="txGo">Temp nikalein</button><div id="txOut"></div>
+    <div class="mut">PV = Lo + (Hi−Lo)×(mA−4)/16<br>Burnout NAMUR NE43: 21 mA upscale / 3.6 mA downscale fault.</div></div>
+</div></section>
+<!-- ================= 15. HYDRAULIC VALVE SIM ================= -->
+<section id="tab-valvesim" class="tab"><div class="grid">
+  <div class="card wide"><h3>Directional / Check Valve — Live Circuit Simulator</h3>
+    <div class="row">Valve <select id="vsCfg">
+      <option value="chk">Check Valve (1-way)</option>
+      <option value="22nc">2/2 NC (normally closed)</option>
+      <option value="22no">2/2 NO (normally open)</option>
+      <option value="32nc">3/2 NC + single-acting cyl</option>
+      <option value="32no">3/2 NO + single-acting cyl</option>
+      <option value="42">4/2 (spring return)</option>
+      <option value="43" selected>4/3 (a / b / center)</option></select>
+    Center <select id="vsCenter"><option value="closed">Closed</option><option value="tandem">Tandem</option><option value="open">Open</option><option value="float">Float</option></select>
+    Actuation <select id="vsAct"><option value="sol">Solenoid</option><option value="man">Manual (hold)</option><option value="pil">Pilot operated</option></select></div>
+    <div class="row">
+      <button class="btn acc" id="vsPump">▶ Pump</button>
+	  <button class="btn danger" id="vsReset">⟲ Reset</button>
+      <button class="btn" id="vsM1">◀ hold a</button><button class="btn" id="vsM2">hold b ▶</button>
+      <button class="btn" id="vsY1">Y1 a</button><button class="btn" id="vsY2">Y2 b</button>
+      <span class="mut">Pilot shift ≥ 25 bar</span></div>
+    <div class="row">Relief <input id="vsRelief" type="number" value="150" style="width:80px"> bar · Pump Q <input id="vsQ" type="number" value="40" style="width:70px"> L/min · Load <input id="vsLoad" type="number" value="35" style="width:70px"> bar</div>
+    <canvas id="vsCv" height="340" style="margin-top:8px"></canvas>
+    <div class="mut">🟠 = pressurized/flow · 🔴 dashes = over relief (heat!) · 🔵 = tank return · Cylinder chambers pressure ke saath tint hote hain.</div></div>
+  <div class="card"><h3>Live Gauges</h3>
+    <div class="card"><h3>Port Status — LIVE</h3>
+    <div class="row" style="gap:6px">
+      <span id="vsStP" class="pill">P: –</span><span id="vsStT" class="pill">T: –</span>
+      <span id="vsStA" class="pill">A: –</span><span id="vsStB" class="pill">B: –</span></div>
+    <div id="vsPath" class="mut" style="margin-top:6px">–</div>
+    <div class="mut" style="margin-top:4px">🟠 Pressure line · 🔵 Tank return · ⚪ Blocked/Hold<br>Symbol ke andar arrows = flow path, glow = active position.</div></div>
+    <table><tr><td>System P</td><td><b id="vgSys">0</b> bar</td></tr>
+    <tr><td>Pilot P</td><td><b id="vgPil">0</b> bar</td></tr>
+    <tr><td>Port A</td><td><b id="vgA">0</b> bar</td></tr>
+    <tr><td>Port B</td><td><b id="vgB">0</b> bar</td></tr>
+    <tr><td>Flow</td><td><b id="vgQ">0</b> L/min</td></tr></table>
+    <label style="margin-top:6px">Stroke: <b id="vgPos">50%</b></label>
+    <div style="height:14px;background:var(--panel);border-radius:7px;overflow:hidden"><div id="vgPosBar" style="height:100%;width:50%;background:var(--acc)"></div></div>
+    <div id="vgSt" style="margin-top:8px"></div></div>
+  <div class="card"><h3>Event Log <button class="btn" id="vsCsv">⬇ CSV</button> <button class="btn danger" id="vsClr">Clear</button></h3>
+    <div class="twrap" style="max-height:220px"><table id="vsLogTbl"></table></div></div>
+  <div class="card"><h3>Pilot Operated Valves — Field Notes</h3><div class="mut">
+    • <b>Internal pilot:</b> pilot oil main P line se (X plug) · <b>External pilot:</b> alag line se<br>
+    • Min pilot pressure typically <b>25–35 bar</b> (spring force beat karna hota hai)<br>
+    • <b>PO check valve:</b> pilot ratio 3:1 typical — 300 bar load → ~100 bar pilot chahiye<br>
+    • Pilot valve chhota hota hai, main spool pressure + pilot se shift hota hai<br>
+    • Vent-type PRV: remote vent port se pressure adjust / pump unload<br>
+    • Dead-head (closed center): pump ka sara oil relief se jata hai → oil garam → cooler zaroori</div></div>
+  <div class="card wide"><h3>Valve Types Reference (Hydraulic)</h3><table>
+    <tr><th>Valve</th><th>Function</th><th>Use</th></tr>
+    <tr><td>Check (1-way)</td><td>ek direction free, reverse blocked</td><td>pump protection</td></tr>
+    <tr><td>Pilot-operated check</td><td>pilot se reverse open</td><td>load holding (ram, crane)</td></tr>
+    <tr><td>2/2 NC/NO</td><td>ON/OFF block</td><td>isolation, vent</td></tr>
+    <tr><td>3/2</td><td>pressurize / exhaust</td><td>single-acting cylinder</td></tr>
+    <tr><td>4/2</td><td>P→A / P→B alternate</td><td>2-position actuator</td></tr>
+    <tr><td>4/3 closed</td><td>sab blocked</td><td>load hold ⚠ pump dead-head</td></tr>
+    <tr><td>4/3 tandem</td><td>P→T, A/B blocked</td><td>hold + pump unload ✓</td></tr>
+    <tr><td>4/3 open</td><td>sab → T</td><td>float, low hold</td></tr>
+    <tr><td>4/3 float</td><td>P blocked, A/B→T</td><td>coast ⚠ dead-head</td></tr>
+    <tr><td>PRV</td><td>set pressure par open</td><td>safety — har circuit mein</td></tr>
+    <tr><td>Sequence</td><td>set P ke baad next branch</td><td>clamp → press order</td></tr>
+    <tr><td>Counterbalance</td><td>back-pressure + pilot open</td><td>vertical load</td></tr>
+    <tr><td>Reducing</td><td>branch pressure kam</td><td>low-P circuit</td></tr>
+    <tr><td>Flow control</td><td>Q adjust (needle/comp.)</td><td>speed control</td></tr>
+    <tr><td>Shuttle</td><td>higher of 2 inputs pass</td><td>OR logic</td></tr></table></div>
+</div></section>
+
+<div class="foot">⚠ <b>Disclaimer:</b> Ye educational/simulation tool hai. Plant protection settings, wiring aur safety-critical decisions ke liye hamesha latest NEC/IEC/ISO standards aur manufacturer datasheets verify karein. All data stored locally (localStorage) — app 100% offline chalti hai.</div>
+</main>
+
+<script>
+"use strict";
+/* ============ HELPERS ============ */
+const $=(q,el=document)=>el.querySelector(q), $$=(q,el=document)=>[...el.querySelectorAll(q)];
+const LS={g(k,d){try{const v=localStorage.getItem('indus_'+k);return v?JSON.parse(v):d}catch(e){return d}},s(k,v){try{localStorage.setItem('indus_'+k,JSON.stringify(v))}catch(e){}}};
+const fmt=(n,d=2)=>(typeof n==='number'&&isFinite(n))?n.toFixed(d):'–';
+function csvOf(rows){return rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n')}
+function download(name,txt){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'text/csv;charset=utf-8'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(a.href)},500)}
+function tbl(el,head,rows){el.innerHTML='<tr>'+head.map(h=>'<th>'+h+'</th>').join('')+'</tr>'+rows.map(r=>'<tr>'+r.map(c=>'<td>'+c+'</td>').join('')+'</tr>').join('')}
+function fitCv(cv){const r=cv.getBoundingClientRect(),d=Math.min(2,window.devicePixelRatio||1);
+ const w=Math.max(50,Math.round(r.width));
+ if(!cv.dataset.h)cv.dataset.h=cv.getAttribute('height')||150;
+ const h=Math.max(40,+cv.dataset.h);
+ const pw=Math.round(w*d),ph=Math.round(h*d);
+ if(cv.width!==pw||cv.height!==ph){cv.width=pw;cv.height=ph}
+ cv.style.height=h+'px';
+ const x=cv.getContext('2d');x.setTransform(d,0,0,d,0,0);return[x,w,h]}
+/* ============ THEME & TABS ============ */
+function setTheme(t){document.body.classList.toggle('light',t==='light');$('#themeBtn').textContent=t==='light'?'🌙':'☀️';LS.s('theme',t)}
+$('#themeBtn').onclick=()=>setTheme(document.body.classList.contains('light')?'dark':'light');setTheme(LS.g('theme','dark'));
+const TABS=[['instruments','🎚️ Instruments'],['motors','⚡ Motors'],['wires','🔌 Wires'],['battery','🔋 Battery'],['periodic','🧪 Periodic'],['bearings','⚙️ Bearings'],['breakers','🛡️ Breakers'],['pneumatic','💨 Pneumatics'],['hydraulic','🛢️ Hydraulics'],['valvesim','🎛️ Valve Sim'],
+['convert','🔢 Converters'],['network','🌐 Network'],['vibro','📉 Vibrometer'],['calc','🧮 HyperPro'],['rtd','🌡️ RTD/TC']];
+const SIMS={};let runningSim=null,curTab='instruments';
+TABS.forEach(([id,lb])=>{const b=document.createElement('button');b.className='tabbtn';b.textContent=lb;b.dataset.id=id;b.onclick=()=>activateTab(id);$('#tabs').appendChild(b)});
+function activateTab(id){curTab=id;$$('.tabbtn').forEach(b=>b.classList.toggle('active',b.dataset.id===id));$$('.tab').forEach(s=>s.classList.toggle('active',s.id==='tab-'+id));
+ if(runningSim&&SIMS[runningSim]){SIMS[runningSim].stop();runningSim=null}
+ if(SIMS[id]){SIMS[id].start();runningSim=id}}
+window.addEventListener('resize',()=>{if(curTab==='instruments')insDraw();if(curTab==='motors')motDraw();if(curTab==='vibro')vibDraw();if(curTab==='valvesim')vsDraw()});
+
+/* ============ 1. INSTRUMENTS ============ */
+const INS_SPANS={p:[0,10,'bar'],f:[0,100,'m³/h'],t:[0,400,'°C'],l:[0,100,'%']};
+let insTrend=[],insLog=LS.g('insLog',[]),insAlarmState='',insPv=null,insTimer=null;
+function pv2ma(pv,L,H,sq){let f=(pv-L)/(H-L);f=Math.min(1,Math.max(0,f));if(sq)f=Math.sqrt(f);return 4+16*f}
+function ma2pv(ma,L,H,sq){let f=(ma-4)/16;f=Math.min(1,Math.max(0,f));if(sq)f=f*f;return L+(H-L)*f}
+$('#insType').onchange=()=>{const d=INS_SPANS[$('#insType').value];$('#insMin').value=d[0];$('#insMax').value=d[1];$('#insUnit').value=d[2];$('#insUnit2').textContent=d[2];insCal()};
+$('#insSqrt').onchange=insCal;$('#insMin').onchange=insCal;$('#insMax').onchange=insCal;
+$('#insConv').onclick=()=>{const L=+$('#insMin').value,H=+$('#insMax').value;$('#insConvOut').textContent=fmt(ma2pv(+$('#insMaIn').value,L,H,$('#insSqrt').checked),3)+' '+$('#insUnit').value};
+function insCal(){const L=+$('#insMin').value,H=+$('#insMax').value,sq=$('#insSqrt').checked,u=$('#insUnit').value;
+ tbl($('#insCal'),['%','mA','PV ('+u+')'],[0,25,50,75,100].map(p=>{const pv=L+(H-L)*p/100;return[p+'%',fmt(pv2ma(pv,L,H,sq),2),fmt(pv,3)]}))}
+insCal();
+function insTick(){const L=+$('#insMin').value,H=+$('#insMax').value,sq=$('#insSqrt').checked,spPct=+$('#insSP').value/1000;
+ let pv;if($('#insMode').value==='man'){pv=L+(H-L)*spPct}
+ else{const sp=L+(H-L)*spPct,span=H-L;if(insPv==null)insPv=sp;insPv+=(sp-insPv)*.12+(Math.random()-.5)*span*.012;pv=Math.max(L,Math.min(H,insPv))}
+ const ma=pv2ma(pv,L,H,sq);$('#insPV').textContent=fmt(pv,3);$('#insMA').textContent=fmt(ma,2);
+ const pct=(pv-L)/(H-L)*100,HH=+$('#insHH').value,LL=+$('#insLL').value;
+ const al=pct>=HH?'HIGH ALARM':pct<=LL?'LOW ALARM':'NORMAL';
+ const b=$('#insAlarm');b.textContent=al;b.className='pill '+(al==='NORMAL'?'ok':al.startsWith('HIGH')?'bad':'warn');
+ insTrend.push({pv,ma});if(insTrend.length>120)insTrend.shift();insDraw();
+ if(al!=='NORMAL'&&al!==insAlarmState){insLog.unshift({t:new Date().toLocaleString(),pv:fmt(pv,3),ma:fmt(ma,2),st:al});insLog=insLog.slice(0,300);LS.s('insLog',insLog);insRender()}
+ insAlarmState=al}
+function insDraw(){plotLine($('#insCv'),[{data:insTrend.map(p=>p.pv),color:'#3fa9f5'},{data:insTrend.map(p=>p.ma*10),color:'#00e5c3'}])}
+function insRender(){tbl($('#insTbl'),['Time','PV','mA','Status'],insLog.slice(0,60).map(r=>[r.t,r.pv,r.ma,r.st]))}
+insRender();
+SIMS.instruments={start(){if(insTimer)return;insTimer=setInterval(insTick,400)},stop(){clearInterval(insTimer);insTimer=null}};
+$('#insStart').onclick=()=>{SIMS.instruments.start();runningSim='instruments'};
+$('#insStop').onclick=()=>{SIMS.instruments.stop();if(runningSim==='instruments')runningSim=null};
+$('#insCsv').onclick=()=>download('induspro_instruments.csv',csvOf([['Time','PV','mA','Status'],...insLog]));
+$('#insClr').onclick=()=>{insLog=[];LS.s('insLog',[]);insRender()};
+/* PID */
+let pid={sp:50,pv:50,i:0,e0:0,t:[],timer:null};
+function pidTick(){const dt=.1,Kp=+$('#pidKp').value,Ki=+$('#pidKi').value,Kd=+$('#pidKd').value;
+ const e=pid.sp-pid.v? 0:0; /*noop*/ const err=pid.sp-pid.pv;pid.i+=err*dt;const d=(err-pid.e0)/dt;pid.e0=err;
+ let u=Kp*err+Ki*pid.i+Kd*d;u=Math.max(0,Math.min(100,u));
+ pid.pv+=(u-pid.pv)*.15+(Math.random()-.5)*1.2;pid.t.push({sp:pid.sp,pv:pid.pv});if(pid.t.length>150)pid.t.shift();
+ plotLine($('#pidCv'),[{data:pid.t.map(p=>p.pv),color:'#3fa9f5'},{data:pid.t.map(p=>p.sp),color:'#f5a623'}])}
+$('#pidStart').onclick=()=>{if(!pid.timer)pid.timer=setInterval(pidTick,100)};
+$('#pidStop').onclick=()=>{clearInterval(pid.timer);pid.timer=null};
+$('#pidStep').onclick=()=>{pid.sp=pid.sp===50?80:50};
+$('#pidReset').onclick=()=>{pid={sp:50,pv:50,i:0,e0:0,t:[],timer:pid.timer};pid.t=[]};
+
+/* ============ 2. MOTORS ============ */
+let motTrend=[],motLog=LS.g('motLog',[]),motTimer=null;
+$('#motCalc').onclick=()=>{const ph=+$('#motPh').value,V=+$('#motV').value,I=+$('#motI').value,pf=+$('#motPF').value,eff=+$('#motEff').value/100,rpm=+$('#motRpm').value;
+ const pin=ph===3?Math.sqrt(3)*V*I*pf/1000:ph===1?V*I*pf/1000:V*I/1000;
+ const pout=pin*eff,hp=pout/0.7457,T=rpm>0?9550*pout/rpm:0;
+ const ns=120*(+$('#motF').value)/(+$('#motPoles').value),slip=ns>0&&rpm>0?(ns-rpm)/ns*100:0;
+ $('#motOut').innerHTML='<div class="mid">P in: '+fmt(pin,2)+' kW | P out: '+fmt(pout,2)+' kW</div><div class="mid">HP: '+fmt(hp,2)+' | Torque: '+fmt(T,1)+' N·m</div><div class="mut">Sync: '+fmt(ns,0)+' rpm | Slip: '+fmt(slip,1)+'% | kVA: '+fmt(pin/(eff||1),2)+'</div>'};
+function motSync(){tbl($('#motSync'),['Poles','Sync RPM (50Hz)','(60Hz)'],[2,4,6,8,10,12].map(p=>[p,3000/p,3600/p]))}
+motSync();
+function motTick(){const load=+$('#motLoad').value/100;$('#motLoadV').textContent=Math.round(load*100)+'%';
+ const rated=+$('#motRated').value,ph=+$('#motPh').value,V=+$('#motV').value,eff=+$('#motEff').value/100,pfN=+$('#motPF').value;
+ const Inom=ph===3?rated*1000/(Math.sqrt(3)*V*pfN*eff):rated*1000/(V*(ph===1?pfN:1)*eff);
+ const I=Inom*(.3+.7*load),pf=.25+.68*load,kW=rated*load,T=9550*kW/Math.max(100,+$('#motRpm').value);
+ motTrend.push({kW,I,pf});if(motTrend.length>120)motTrend.shift();motDraw();
+ motLog.unshift({t:new Date().toLocaleTimeString(),load:Math.round(load*100)+'%',kW:fmt(kW,2),I:fmt(I,1),pf:fmt(pf,2),T:fmt(T,1)});motLog=motLog.slice(0,300);LS.s('motLog',motLog);
+ if(motLog.length%2===0)motRender()}
+function motDraw(){plotLine($('#motCv'),[{data:motTrend.map(p=>p.kW),color:'#3fa9f5'},{data:motTrend.map(p=>p.I),color:'#00e5c3'},{data:motTrend.map(p=>p.pf*10),color:'#f5a623'}])}
+function motRender(){tbl($('#motTbl'),['Time','Load','kW','A','PF','N·m'],motLog.slice(0,60).map(r=>[r.t,r.load,r.kW,r.I,r.pf,r.T]))}
+motRender();
+SIMS.motors={start(){if(!motTimer)motTimer=setInterval(motTick,600)},stop(){clearInterval(motTimer);motTimer=null}};
+$('#motStart').onclick=()=>{SIMS.motors.start();runningSim='motors'};
+$('#motStop').onclick=()=>{SIMS.motors.stop();if(runningSim==='motors')runningSim=null};
+$('#motCsv').onclick=()=>download('induspro_motor.csv',csvOf([['Time','Load%','kW','A','PF','Nm'],...motLog]));
+$('#motClr').onclick=()=>{motLog=[];LS.s('motLog',[]);motRender()};
+
+/* ============ 3. WIRES ============ */
+const AWG=[['14','2.08',15,20,25,null,null,null],['12','3.31',20,25,30,15,20,25],['10','5.26',30,35,40,25,30,35],['8','8.37',40,50,55,30,40,45],['6','13.3',55,65,75,40,50,55],['4','21.2',70,85,95,55,65,75],['3','26.7',85,100,115,65,75,85],['2','33.6',95,115,130,75,90,100],['1','42.4',110,130,145,85,100,115],['1/0','53.5',125,150,165,100,120,135],['2/0','67.4',145,175,195,115,135,150],['3/0','85.0',165,200,225,130,155,175],['4/0','107',195,230,260,150,180,205],['250 kcmil','127',215,255,290,170,205,230],['300 kcmil','152',240,285,320,190,230,260],['350 kcmil','177',260,310,350,210,250,280],['400 kcmil','203',280,335,380,225,270,305],['500 kcmil','253',320,380,430,260,310,350]];
+function ampRender(){const m=$('#ampMe').value;tbl($('#ampTbl'),['Size','mm²','Cu 60°C','Cu 75°C','Cu 90°C','Al 60°C','Al 75°C','Al 90°C'],
+ AWG.filter(r=>m==='both'||(m==='cu'?r[2]:r[5]!=null)).map(r=>[r[0],r[1],r[2]??'—',r[3]??'—',r[4]??'—',r[5]??'—',r[6]??'—',r[7]??'—']))}
+$('#ampMe').onchange=ampRender;ampRender();
+const MM2=[1.5,2.5,4,6,10,16,25,35,50,70,95,120,150,185,240,300];
+MM2.forEach(v=>{const o=document.createElement('option');o.value=v;o.textContent=v+' mm²';$('#vdSize').appendChild(o)});$('#vdSize').value='4';
+$('#vdGo').onclick=()=>{const I=+$('#vdI').value,L=+$('#vdL').value,V=+$('#vdV').value,A=+$('#vdSize').value;
+ const rho=$('#vdMe').value==='cu'?0.021:0.034,ph=+$('#vdPh').value;
+ const vd=ph===3?Math.sqrt(3)*I*L*rho/A:2*I*L*rho/A,pct=vd/V*100;
+ let rec=null;for(const s of MM2){const v2=ph===3?Math.sqrt(3)*I*L*rho/s:2*I*L*rho/s;if(v2/V*100<=+$('#vdMax').value){rec=s;break}}
+ $('#vdOut').innerHTML='<div class="mid">VD: '+fmt(vd,2)+' V ('+fmt(pct,2)+'%)</div>'+(rec?'<div class="pill ok">Min size ≤'+$('#vdMax').value+'%: '+rec+' mm²</div>':'<div class="pill bad">Koi size list me fit nahi — parallel cables / voltage barhayen</div>')};
+
+/* ============ 4. BATTERY ============ */
+$('#batGo').onclick=()=>{const W=+$('#batW').value,h=+$('#batH').value,V=+$('#batV').value,dod=+$('#batDod').value/100,eff=+$('#batEff').value/100;
+ const ah=W*h/(V*dod*eff);$('#batOut').innerHTML='<div class="mid">Required bank: '+fmt(ah,0)+' Ah @ '+V+'V</div><div class="mut">Energy: '+fmt(W*h/1000,2)+' kWh | DoD '+$('#batDod').value+'% | η '+$('#batEff').value+'%</div>'};
+$('#chGo').onclick=()=>{const ah=+$('#chAh').value;$('#chOut').innerHTML='<div class="mid">C/10: '+fmt(ah/10,1)+' A · C/5: '+fmt(ah/5,1)+' A · C/2: '+fmt(ah/2,1)+' A</div><div class="mut">Time @C/10 ≈ '+fmt(ah/(ah/10)*1.2,1)+' h</div>'};
+$('#cbGo').onclick=()=>{const V=+$('#cbV').value*+$('#cbS').value,Ah=+$('#cbAh').value*+$('#cbP').value;
+ $('#cbOut').innerHTML='<div class="mid">Bank: '+fmt(V,1)+' V · '+fmt(Ah,0)+' Ah · '+fmt(V*Ah/1000,2)+' kWh</div><div class="mut">'+$('#cbS').value+'S × '+$('#cbP').value+'P configuration</div>'};
+
+/* ============ 5. PERIODIC TABLE ============ */
+const PT_RAW="1|H|Hydrogen|1.008|nm|1|1;2|He|Helium|4.0026|ng|18|1;3|Li|Lithium|6.94|al|1|2;4|Be|Beryllium|9.0122|ae|2|2;5|B|Boron|10.81|me|13|2;6|C|Carbon|12.011|nm|14|2;7|N|Nitrogen|14.007|nm|15|2;8|O|Oxygen|15.999|nm|16|2;9|F|Fluorine|18.998|ha|17|2;10|Ne|Neon|20.180|ng|18|2;11|Na|Sodium|22.990|al|1|3;12|Mg|Magnesium|24.305|ae|2|3;13|Al|Aluminium|26.982|po|13|3;14|Si|Silicon|28.085|me|14|3;15|P|Phosphorus|30.974|nm|15|3;16|S|Sulfur|32.06|nm|16|3;17|Cl|Chlorine|35.45|ha|17|3;18|Ar|Argon|39.95|ng|18|3;19|K|Potassium|39.098|al|1|4;20|Ca|Calcium|40.078|ae|2|4;21|Sc|Scandium|44.956|tm|3|4;22|Ti|Titanium|47.867|tm|4|4;23|V|Vanadium|50.942|tm|5|4;24|Cr|Chromium|51.996|tm|6|4;25|Mn|Manganese|54.938|tm|7|4;26|Fe|Iron|55.845|tm|8|4;27|Co|Cobalt|58.933|tm|9|4;28|Ni|Nickel|58.693|tm|10|4;29|Cu|Copper|63.546|tm|11|4;30|Zn|Zinc|65.38|tm|12|4;31|Ga|Gallium|69.723|po|13|4;32|Ge|Germanium|72.63|me|14|4;33|As|Arsenic|74.922|me|15|4;34|Se|Selenium|78.971|nm|16|4;35|Br|Bromine|79.904|ha|17|4;36|Kr|Krypton|83.798|ng|18|4;37|Rb|Rubidium|85.468|al|1|5;38|Sr|Strontium|87.62|ae|2|5;39|Y|Yttrium|88.906|tm|3|5;40|Zr|Zirconium|91.224|tm|4|5;41|Nb|Niobium|92.906|tm|5|5;42|Mo|Molybdenum|95.95|tm|6|5;43|Tc|Technetium|98|tm|7|5;44|Ru|Ruthenium|101.07|tm|8|5;45|Rh|Rhodium|102.91|tm|9|5;46|Pd|Palladium|106.42|tm|10|5;47|Ag|Silver|107.87|tm|11|5;48|Cd|Cadmium|112.41|tm|12|5;49|In|Indium|114.82|po|13|5;50|Sn|Tin|118.71|po|14|5;51|Sb|Antimony|121.76|me|15|5;52|Te|Tellurium|127.60|me|16|5;53|I|Iodine|126.90|ha|17|5;54|Xe|Xenon|131.29|ng|18|5;55|Cs|Caesium|132.91|al|1|6;56|Ba|Barium|137.33|ae|2|6;57|La|Lanthanum|138.91|la|3|8;58|Ce|Cerium|140.12|la|4|8;59|Pr|Praseodymium|140.91|la|5|8;60|Nd|Neodymium|144.24|la|6|8;61|Pm|Promethium|145|la|7|8;62|Sm|Samarium|150.36|la|8|8;63|Eu|Europium|151.96|la|9|8;64|Gd|Gadolinium|157.25|la|10|8;65|Tb|Terbium|158.93|la|11|8;66|Dy|Dysprosium|162.50|la|12|8;67|Ho|Holmium|164.93|la|13|8;68|Er|Erbium|167.26|la|14|8;69|Tm|Thulium|168.93|la|15|8;70|Yb|Ytterbium|173.05|la|16|8;71|Lu|Lutetium|174.97|la|17|8;72|Hf|Hafnium|178.49|tm|4|6;73|Ta|Tantalum|180.95|tm|5|6;74|W|Tungsten|183.84|tm|6|6;75|Re|Rhenium|186.21|tm|7|6;76|Os|Osmium|190.23|tm|8|6;77|Ir|Iridium|192.22|tm|9|6;78|Pt|Platinum|195.08|tm|10|6;79|Au|Gold|196.97|tm|11|6;80|Hg|Mercury|200.59|tm|12|6;81|Tl|Thallium|204.38|po|13|6;82|Pb|Lead|207.2|po|14|6;83|Bi|Bismuth|208.98|po|15|6;84|Po|Polonium|209|po|16|6;85|At|Astatine|210|ha|17|6;86|Rn|Radon|222|ng|18|6;87|Fr|Francium|223|al|1|7;88|Ra|Radium|226|ae|2|7;89|Ac|Actinium|227|ac|3|9;90|Th|Thorium|232.04|ac|4|9;91|Pa|Protactinium|231.04|ac|5|9;92|U|Uranium|238.03|ac|6|9;93|Np|Neptunium|237|ac|7|9;94|Pu|Plutonium|244|ac|8|9;95|Am|Americium|243|ac|9|9;96|Cm|Curium|247|ac|10|9;97|Bk|Berkelium|247|ac|11|9;98|Cf|Californium|251|ac|12|9;99|Es|Einsteinium|252|ac|13|9;100|Fm|Fermium|257|ac|14|9;101|Md|Mendelevium|258|ac|15|9;102|No|Nobelium|259|ac|16|9;103|Lr|Lawrencium|266|ac|17|9;104|Rf|Rutherfordium|267|tm|4|7;105|Db|Dubnium|268|tm|5|7;106|Sg|Seaborgium|269|tm|6|7;107|Bh|Bohrium|270|tm|7|7;108|Hs|Hassium|269|tm|8|7;109|Mt|Meitnerium|278|tm|9|7;110|Ds|Darmstadtium|281|tm|10|7;111|Rg|Roentgenium|282|tm|11|7;112|Cn|Copernicium|285|tm|12|7;113|Nh|Nihonium|286|po|13|7;114|Fl|Flerovium|289|po|14|7;115|Mc|Moscovium|290|po|15|7;116|Lv|Livermorium|293|po|16|7;117|Ts|Tennessine|294|ha|17|7;118|Og|Oganesson|294|ng|18|7";
+const PT=PT_RAW.split(';').map(s=>{const[z,sy,nm,ms,ct,x,y]=s.split('|');return{z:+z,sy,nm,ms:+ms,ct,x:+x,y:+y}});
+const CATN={al:'Alkali metal',ae:'Alkaline earth',tm:'Transition metal',po:'Post-transition',me:'Metalloid',nm:'Nonmetal',ha:'Halogen',ng:'Noble gas',la:'Lanthanide',ac:'Actinide'};
+const AUF=[['1s',2],['2s',2],['2p',6],['3s',2],['3p',6],['4s',2],['3d',10],['4p',6],['5s',2],['4d',10],['5p',6],['6s',2],['4f',14],['5d',10],['6p',6],['7s',2],['5f',14],['6d',10],['7p',6]];
+function shells(z){const r=[];let rem=z;for(const[o,c]of AUF){if(rem<=0)break;const f=Math.min(c,rem);rem-=f;const n=+o[0];r[n]=(r[n]||0)+f}return Array.from({length:r.length},(_,i)=>r[i]||0)}
+const ptGrid=$('#ptab');let ptSel=null;
+PT.forEach(e=>{const d=document.createElement('div');d.className='el c-'+e.ct;d.dataset.z=e.z;d.title=e.nm;
+ d.innerHTML='<span>'+e.z+'</span><b>'+e.sy+'</b><div class="m">'+e.ms+'</div>';d.onclick=()=>ptShow(e);ptGrid.appendChild(d)});
+function ptShow(e){ptSel=e.z;$$('.el').forEach(d=>d.classList.toggle('sel',+d.dataset.z===e.z));
+ const sh=shells(e.z),blk=(e.ct==='la'||e.ct==='ac')?'f-block':(e.x<=2?'s-block':(e.x>=13?'p-block':'d-block'));
+ $('#ptDetail').innerHTML='<div class="big" style="color:var(--acc)">'+e.sy+' <small style="font-size:13px;color:var(--mut)">'+e.nm+'</small></div>'+
+ '<table><tr><td>Atomic #</td><td><b>'+e.z+'</b></td></tr><tr><td>Atomic mass</td><td><b>'+e.ms+' u</b></td></tr><tr><td>Category</td><td>'+CATN[e.ct]+'</td></tr>'+
+ '<tr><td>Period / Group</td><td>'+(e.y>7?'— (f-block)':e.y+' / '+e.x)+'</td></tr><tr><td>Block</td><td>'+blk+'</td></tr>'+
+ '<tr><td>Electrons/shell</td><td>'+sh.join(', ')+'</td></tr></table>'}
+/* ================= PART 2 — yahan se paste karein ================= */
+$('#ptSearch').oninput=()=>{const q=$('#ptSearch').value.trim().toLowerCase();
+ $$('.el').forEach(d=>{const e=PT[+d.dataset.z-1];const hit=!q||e.nm.toLowerCase().includes(q)||e.sy.toLowerCase().startsWith(q)||String(e.z)===q;d.classList.toggle('dim',!hit)})};
+
+/* Molar mass parser: H2O, Ca(OH)2, Fe2(SO4)3 */
+function parseGroup(s){const map={};let i=0;
+ while(i<s.length){
+  if(s[i]==='('){let depth=1,j=i+1;while(j<s.length&&depth>0){if(s[j]==='(')depth++;if(s[j]===')')depth--;j++}
+   const inner=s.slice(i+1,j-1),numStr=s.slice(j).match(/^\d*\.?\d*/)[0],num=numStr?+numStr:1;
+   const im=parseGroup(inner);for(const k in im)map[k]=(map[k]||0)+im[k]*num;i=j+numStr.length}
+  else{const m=s.slice(i).match(/^([A-Z][a-z]?)(\d*\.?\d*)/);if(!m)throw'Invalid: '+s.slice(i);
+   const num=m[2]?+m[2]:1;map[m[1]]=(map[m[1]]||0)+num;i+=m[0].length}}
+ return map}
+function molarMass(f){const m=parseGroup(f.replace(/\s/g,''));let tot=0;
+ for(const k in m){const e=PT.find(x=>x.sy===k);if(!e)throw'Unknown element: '+k;tot+=e.ms*m[k]}
+ return{total:tot,parts:m}}
+$('#mmGo').onclick=()=>{try{const r=molarMass($('#mmIn').value);
+ const rows=Object.entries(r.parts).map(([k,v])=>{const e=PT.find(x=>x.sy===k);return[k+'×'+v,fmt(e.ms*v,3)+' u',fmt(e.ms*v/r.total*100,1)+'%']});
+ $('#mmOut').innerHTML='<div class="big">'+fmt(r.total,3)+' g/mol</div><table><tr><th>Element</th><th>Mass</th><th>%</th></tr>'+rows.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td><td>'+r[2]+'%</td></tr>').join('')+'</table>'}
+ catch(ex){$('#mmOut').innerHTML='<span class="pill bad">Error: '+ex+'</span>'}};
+
+/* Reaction Finder: H2O + NO2 = ? */
+const RXN=[['2H2 + O2','2H2O'],['2NO2 + H2O','HNO3 + HNO2'],['4NO2 + O2 + 2H2O','4HNO3'],['N2 + 3H2','2NH3'],
+['2SO2 + O2','2SO3'],['SO3 + H2O','H2SO4'],['CaO + H2O','Ca(OH)2'],['CaCO3','CaO + CO2'],['CH4 + 2O2','CO2 + 2H2O'],
+['2CO + O2','2CO2'],['CO2 + H2O','H2CO3'],['C + O2','CO2'],['2Na + 2H2O','2NaOH + H2'],['Ca(OH)2 + CO2','CaCO3 + H2O'],
+['NH3 + HCl','NH4Cl'],['2H2O2','2H2O + O2'],['2NaOH + CO2','Na2CO3 + H2O'],['Zn + 2HCl','ZnCl2 + H2'],
+['4Fe + 3O2','2Fe2O3'],['2KClO3','2KCl + 3O2'],['Fe + S','FeS'],['2Al + 3Cl2','2AlCl3'],['2Mg + O2','2MgO']];
+const subEq=s=>s.replace(/([A-Za-z\)])(\d+)/g,'$1<sub>$2</sub>');
+const speciesOf=s=>s.split(' + ').map(x=>x.replace(/^\d+/,''));
+tbl($('#rxAll'),['Reactants','Products'],RXN.map(r=>[subEq(r[0]),subEq(r[1])]));
+$('#rxGo').onclick=()=>{const q=$('#rxIn').value.split(/[+,]/).map(s=>s.trim()).filter(Boolean);
+ if(!q.length){$('#rxOut').innerHTML='<span class="pill warn">Reactants likhein, e.g. H2O + NO2</span>';return}
+ const hits=[];RXN.forEach(([l,r])=>{const L=speciesOf(l),R=speciesOf(r);
+  if(q.every(x=>L.includes(x)))hits.push([l+' → '+r,'Forward']);
+  else if(q.every(x=>R.includes(x)))hits.push([l+' → '+r,'Reverse'])});
+ if(hits.length)$('#rxOut').innerHTML=hits.map(h=>{const ps=speciesOf(h[0].split(' → ')[1]);
+  const mm=ps.map(x=>{try{return x+' = '+fmt(molarMass(x).total,1)+' g/mol'}catch(e){return x}}).join(' · ');
+  return '<div style="margin:6px 0"><b style="font-size:15px">'+subEq(h[0])+'</b> <span class="pill '+(h[1]==='Forward'?'ok':'warn')+'">'+h[1]+'</span><div class="mut">Molar mass: '+mm+'</div></div>'}).join('');
+ else $('#rxOut').innerHTML='<span class="pill warn">Match nahi mila — DB me '+RXN.length+' reactions hain (list neeche).</span>'};
+
+/* ============ 6. BEARINGS ============ */
+const BR=[[6000,10,26,8],[6001,12,28,8],[6002,15,32,9],[6003,17,35,10],[6004,20,42,12],[6005,25,47,12],[6006,30,55,13],[6007,35,62,14],[6008,40,68,15],[6009,45,75,16],[6010,50,80,16],[6011,55,90,18],[6012,60,95,18],[6013,65,100,18],[6014,70,110,20],[6015,75,115,20],[6016,80,125,22],[6017,85,130,22],[6018,90,140,24],[6019,95,145,24],[6020,100,150,24],
+[6200,10,30,9],[6201,12,32,10],[6202,15,35,11],[6203,17,40,12],[6204,20,47,14],[6205,25,52,15],[6206,30,62,16],[6207,35,72,17],[6208,40,80,18],[6209,45,85,19],[6210,50,90,20],[6211,55,100,21],[6212,60,110,22],[6213,65,120,23],[6214,70,125,24],[6215,75,130,25],[6216,80,140,26],[6217,85,150,28],[6218,90,160,30],[6219,95,170,32],[6220,100,180,34],
+[6300,10,35,11],[6301,12,37,12],[6302,15,42,13],[6303,17,47,14],[6304,20,52,15],[6305,25,62,17],[6306,30,72,19],[6307,35,80,21],[6308,40,90,23],[6309,45,100,25],[6310,50,110,27],[6311,55,120,29],[6312,60,130,31],[6313,65,140,33],[6314,70,150,35],[6315,75,160,37],[6316,80,170,39],[6317,85,180,41],[6318,90,190,43],[6319,95,200,45],[6320,100,215,47]];
+tbl($('#brTbl'),['Designation','Bore d (mm)','OD D (mm)','Width B (mm)'],BR.map(r=>[r[0],r[1],r[2],r[3]]));
+$('#brGo').onclick=()=>{const raw=$('#brIn').value.trim().toUpperCase();
+ const m=raw.match(/^([A-Z]*)(\d{4,6})/);if(!m){$('#brOut').innerHTML='<span class="pill bad">Number samajh nahi aaya (e.g. 6205)</span>';return}
+ const pre=m[1],num=m[2],boreCd=+num.slice(-2);
+ const bore=boreCd===0?10:boreCd===1?12:boreCd===2?15:boreCd===3?17:boreCd*5;
+ const all=num;let type='Custom / unknown';
+ if(/^6[0-9]{4}/.test(all))type='Deep groove ball';
+ else if(/^222|^223|^230|^231|^232/.test(all))type='Spherical roller';
+ else if(/^(72|73)/.test(all))type='Angular contact ball';
+ else if(/^(51|52)/.test(all))type='Thrust ball';
+ else if(/^(30|31|32|33)[0-9]{2}/.test(all))type='Taper roller';
+ else if(/^(12|22)[0-9]{2}/.test(all))type='Self-aligning ball';
+ else if(/^(NU|NJ|NUP|N)/.test(pre+all))type='Cylindrical roller';
+ const hit=BR.find(r=>r[0]===+num);
+ $('#brOut').innerHTML='<div class="mid">'+raw+'</div><table><tr><td>Type</td><td><b>'+type+'</b></td></tr><tr><td>Series</td><td>'+num.slice(0,num.length-2)+'</td></tr><tr><td>Bore code</td><td>'+boreCd+' → <b>'+bore+' mm</b></td></tr>'+(hit?'<tr><td>Dimensions</td><td><b>'+hit[1]+' × '+hit[2]+' × '+hit[3]+' mm</b> (d×D×B)</td></tr>':'')+'</table>'+(raw.length>num.length+pre.length?'<div class="mut">Suffix: '+raw.slice(pre.length+num.length)+' — 2RS=seals · ZZ=shields · C3=clearance · K=taper bore</div>':'')};
+$('#bfGo').onclick=()=>{const rpm=+$('#bfRpm').value,fr=rpm/60,n=+$('#bfN').value,d=+$('#bfD').value,D=+$('#bfPd').value,th=+$('#bfAng').value*Math.PI/180;
+ const c=d/D*Math.cos(th);
+ const rows=[['FTF',fr/2*(1-c)],['BPFO',n*fr/2*(1-c)],['BPFI',n*fr/2*(1+c)],['BSF',D*fr/(2*d)*(1-c*c)]];
+ $('#bfOut').innerHTML='<table><tr><th>Freq</th><th>Hz</th><th>Order</th></tr>'+rows.map(r=>'<tr><td><b>'+r[0]+'</b></td><td>'+fmt(r[1],2)+'</td><td>'+fmt(r[1]/fr,3)+'×</td></tr>').join('')+'</table>'};
+
+/* ============ 7. BREAKERS ============ */
+function tcCalc(){const c=$('#tcCurve').value,In=+$('#tcIn').value,m=+$('#tcMult').value/10;
+ $('#tcMultV').textContent=m.toFixed(1)+'×';
+ const R={B:[3,5],C:[5,10],D:[10,20]}[c],mag=m>=R[0]&&m<=R[1];
+ const therm=m<=1.13?null:400/((m*m)-1);
+ $('#tcOut').innerHTML='<div class="mid">Fault: '+fmt(m*In,0)+' A</div>'+(mag?'<span class="pill bad">MAGNETIC TRIP — instantaneous ('+R[0]+'–'+R[1]+'×In)</span>':'<span class="pill ok">Magnetic: no trip</span>')+'<div class="mut" style="margin-top:4px">Thermal approx: '+(therm===null?'no trip (≤In)':fmt(therm,1)+' s')+'</div>'}
+$('#tcCurve').onchange=tcCalc;$('#tcIn').oninput=tcCalc;$('#tcMult').oninput=tcCalc;tcCalc();
+
+/* ============ 8. PNEUMATICS ============ */
+function pnSim(){const ma=+$('#pnMa').value/10;$('#pnMaV').textContent=ma.toFixed(1)+' mA';
+ const pct=(ma-4)/16*100,psi=3+12*(ma-4)/16,bar=psi*0.0689476;
+ $('#pnOut').innerHTML='<div class="mid">'+fmt(pct,1)+'% → '+fmt(psi,2)+' psi ('+fmt(bar,3)+' bar)</div><div class="mut">I/P output '+fmt(psi,1)+' psig → positioner → valve stem '+fmt(pct,0)+'% open</div>'}
+$('#pnMa').oninput=pnSim;pnSim();
+tbl($('#pnCal'),['% Stroke','mA (ideal)','psi','bar'],[0,25,50,75,100].map(p=>{const ma=4+16*p/100,psi=3+12*p/100;return[p+'%',fmt(ma,2),fmt(psi,2),fmt(psi*0.0689476,3)]}));
+$('#cvGo').onclick=()=>{const Cv=+$('#cvCv').value,P1=+$('#cvP1').value,P2=+$('#cvP2').value,G=+$('#cvG').value,T=+$('#cvT').value;
+ const dP=Math.max(.01,P1-P2),choked=P2<P1/2;
+ const Q=choked?963*Cv*Math.sqrt(P1*P1/4/(G*T)):963*Cv*Math.sqrt(P2*dP/(G*T));
+ $('#cvOut').innerHTML='<div class="mid">Q ≈ '+fmt(Q,1)+' Nm³/h</div>'+(choked?'<span class="pill warn">Choked flow (P2 < P1/2)</span>':'<span class="pill ok">Subcritical flow</span>')};
+$('#pnGo').onclick=()=>{const B=+$('#pnBore').value,R=+$('#pnRod').value,p=+$('#pnP').value;
+ const A1=Math.PI/4*B*B,A2=Math.PI/4*(B*B-R*R);
+ $('#pnFOut').innerHTML='<div class="mid">Extend: '+fmt(.1*p*A1,0)+' N | Retract: '+fmt(.1*p*A2,0)+' N</div><div class="mut">A₁='+fmt(A1,0)+' mm² · A₂='+fmt(A2,0)+' mm² · F = p(bar)×0.1×A(mm²)</div>'};
+
+/* ============ 9. HYDRAULICS ============ */
+$('#hyGo').onclick=()=>{const Q=+$('#hyQ').value,p=+$('#hyP').value,B=+$('#hyB').value,R=+$('#hyR').value;
+ const kW=Q*p/600,A1=Math.PI/4*B*B,A2=Math.PI/4*(B*B-R*R),v=Q*16.667/A1;
+ $('#hyOut').innerHTML='<div class="mid">Power: '+fmt(kW,2)+' kW ('+fmt(kW/.7355,1)+' HP)</div><div class="mid">Extend: F='+fmt(.1*p*A1,0)+' N · v='+fmt(v*1000,0)+' mm/s</div><div class="mut">A₁='+fmt(A1,0)+' mm² · Retract F='+fmt(.1*p*A2,0)+' N · P(kW)=Q(L/min)·p(bar)/600</div>'};
+
+/* ============ 10. CONVERTERS ============ */
+$('#bcGo').onclick=()=>{const v=parseInt($('#bcIn').value.trim(),+$('#bcBase').value);
+ if(isNaN(v)){$('#bcOut').innerHTML='<span class="pill bad">Invalid number for selected base</span>';return}
+ $('#bcOut').innerHTML='<table><tr><th>Base</th><th>Value</th></tr><tr><td>Decimal</td><td><b>'+v.toString(10)+'</b></td></tr><tr><td>Hex</td><td><b>0x'+v.toString(16).toUpperCase()+'</b></td></tr><tr><td>Binary</td><td><b>0b'+v.toString(2)+'</b></td></tr><tr><td>Octal</td><td><b>0o'+v.toString(8)+'</b></td></tr><tr><td>Bytes (32-bit LE)</td><td>'+[v&255,v>>8&255,v>>16&255,v>>>24].map(x=>x.toString(16).padStart(2,'0').toUpperCase()).join(' ')+'</td></tr></table>'};
+function f2hex(v,bits){const dv=new DataView(new ArrayBuffer(bits/8));
+ if(bits===32)dv.setFloat32(0,v);else dv.setFloat64(0,v);
+ let h='';for(let i=0;i<bits/8;i++)h+=dv.getUint8(i).toString(16).padStart(2,'0').toUpperCase();return h}
+function hex2f(h,bits){h=h.replace(/0x|\s/g,'').toUpperCase();if(h.length!==bits/4)throw'Need '+(bits/4)+' hex digits';
+ const dv=new DataView(new ArrayBuffer(bits/8));for(let i=0;i<bits/8;i++)dv.setUint8(i,parseInt(h.substr(i*2,2),16));
+ return bits===32?dv.getFloat32(0):dv.getFloat64(0)}
+$('#flGo').onclick=()=>{const v=parseFloat($('#flIn').value);if(isNaN(v)){$('#flOut').textContent='Invalid';return}
+ $('#flOut').innerHTML='<div class="mid">Float32: <b>'+f2hex(v,32)+'</b></div><div class="mid">Float64: <b>'+f2hex(v,64)+'</b></div>'};
+$('#flRev').onclick=()=>{try{const v=hex2f($('#flHex').value,+$('#flBits').value);$('#flOut2').innerHTML='<div class="big">'+v+'</div>'}catch(e){$('#flOut2').innerHTML='<span class="pill bad">'+e+'</span>'}};
+$('#mbGo').onclick=()=>{const v=parseFloat($('#mbIn').value);if(isNaN(v)){$('#mbOut').textContent='Invalid';return}
+ const h=f2hex(v,32),r1=h.slice(0,4),r2=h.slice(4),sw=s=>s.slice(2)+s.slice(0,2);
+ const O={ABCD:r1+' '+r2,CDAB:r2+' '+r1,BADC:sw(r1)+' '+sw(r2),DCBA:sw(r2)+' '+sw(r1)};
+ $('#mbOut').innerHTML=Object.entries(O).map(([k,x])=>'<div><b>'+k+':</b> 0x'+x+' <span class="mut">(reg1=0x'+x.slice(0,4)+', reg2=0x'+x.slice(5)+')</span></div>').join('')};
+$('#mbRev').onclick=()=>{const r1=$('#mbR1').value.trim().toUpperCase(),r2=$('#mbR2').value.trim().toUpperCase(),sw=s=>s.slice(2)+s.slice(0,2);
+ let h;switch($('#mbOrder').value){case'ABCD':h=r1+r2;break;case'CDAB':h=r2+r1;break;case'BADC':h=sw(r1)+sw(r2);break;default:h=sw(r2)+sw(r1)}
+ try{$('#mbOut2').innerHTML='<div class="big">'+hex2f(h,32)+'</div>'}catch(e){$('#mbOut2').innerHTML='<span class="pill bad">'+e+'</span>'}};
+
+/* ============ 11. NETWORK ============ */
+const ip2int=ip=>ip.split('.').reduce((a,o)=>((a<<8)+ +o)>>>0,0);
+const int2ip=n=>[n>>>24,n<<8>>>24,n<<16>>>24,n<<24>>>24].join('.');
+$('#sbGo').onclick=()=>{const ip=$('#sbIp').value.trim(),c=+$('#sbCidr').value;
+ if(!/^\d{1,3}(\.\d{1,3}){3}$/.test(ip)||c<0||c>32){$('#sbOut').innerHTML='<span class="pill bad">Invalid IP / CIDR</span>';return}
+ const n=ip2int(ip),mask=c===0?0:(0xFFFFFFFF<<(32-c))>>>0,nw=(n&mask)>>>0,bc=(nw|(~mask>>>0))>>>0;
+ const o1=n>>>24&255,cls=o1<127?'A':o1<192?'B':o1<224?'C':o1<240?'D':'E';
+ const priv=(o1===10)||(o1===172&&((n>>>16&255)>=16)&&((n>>>16&255)<=31))||(o1===192&&(n>>>16&255)===168);
+ $('#sbOut').innerHTML='<table><tr><th>Field</th><th>Value</th></tr>'+
+ [['Network',int2ip(nw)],['Broadcast',c<32?int2ip(bc):'—'],['Subnet mask',int2ip(mask)],['Wildcard',int2ip(~mask>>>0)],
+ ['Usable hosts',(c>=31?'0 (p2p/invalid)':(bc-nw-1).toLocaleString())],['First host',c<31?int2ip(nw+1):'—'],['Last host',c<31?int2ip(bc-1):'—'],
+ ['Class',cls],['IP binary',[n>>>24&255,n>>>16&255,n>>>8&255,n&255].map(x=>x.toString(2).padStart(8,'0')).join('.')]]
+ .map(r=>'<tr><td>'+r[0]+'</td><td><b>'+r[1]+'</b></td></tr>').join('')+'</table>'+(priv?'<span class="pill ok">Private range</span>':'<span class="pill warn">Public range</span>')};
+function netStatus(){const c=navigator.connection||{};
+ $('#netStatus').innerHTML='<div class="big">'+(navigator.onLine?'🌐 Online':'📴 Offline')+'</div><div class="mut">Type: '+(c.effectiveType||'n/a')+' · Downlink: '+(c.downlink||'?')+' Mbps · RTT: '+(c.rtt||'?')+' ms</div><div class="mut">App 100% offline chalti hai — ye sirf status dikhata hai.</div>'}
+window.addEventListener('online',netStatus);window.addEventListener('offline',netStatus);netStatus();
+$('#netIp').onclick=()=>{try{const pc=new RTCPeerConnection({iceServers:[]});pc.createDataChannel('x');
+ pc.createOffer().then(o=>pc.setLocalDescription(o));
+ pc.onicecandidate=e=>{if(e.candidate){const m=e.candidate.candidate.match(/(\d{1,3}(\.\d{1,3}){3})/);
+  if(m&&!/^(0\.|127\.|255\.)/.test(m[1])){$('#netIpOut').textContent='Local IP: '+m[1];pc.close()}}};
+ setTimeout(()=>{try{pc.close()}catch(e){}},3000)}catch(e){$('#netIpOut').textContent='Not available in this browser'}};
+let scStop=false;
+$('#scGo').onclick=async()=>{scStop=false;$('#scTbl').innerHTML='<tr><th>IP</th><th>Status</th></tr>';
+ const base=$('#scBase').value.replace(/\.$/,'')+'.';let a=+$('#scFrom').value,b=+$('#scTo').value,up=0;
+ for(let i=a;i<=b&&!scStop;i++){const ip=base+i;
+  $('#scProg').textContent='Probing '+ip+' … ('+(i-a+1)+'/'+(b-a+1)+')';
+  const ctl=new AbortController(),to=setTimeout(()=>ctl.abort(),1500);let st;
+  try{await fetch('http://'+ip+'/',{mode:'no-cors',signal:ctl.signal});st='✅ Responded';up++}catch(e){st='— no response'}
+  clearTimeout(to);
+  $('#scTbl').insertAdjacentHTML('beforeend','<tr><td>'+ip+'</td><td>'+st+'</td></tr>')}
+ $('#scProg').textContent='Done: '+up+' responded / '+(b-a+1)+' probed.'};
+$('#scStop').onclick=()=>scStop=true;
+
+/* ============ 12. VIBROMETER ============ */
+const ISOZ={1:{r:[2.3,4.5,7.1],f:[3.5,7.1,11]},2:{r:[1.4,2.8,4.5],f:[2.3,4.5,7.1]}};
+let vTimer=null,vTickN=0,vWave=[],vSpecData=[],vTrend=[],vSnaps=LS.g('vSnaps',[]),vNavIdx=-1,VSCALE=12;
+[['vUnbal','vUv'],['vMisal','vMv'],['vBear','vBv'],['vLoose','vLv']].forEach(([s,l])=>$('#'+s).oninput=()=>$('#'+l).textContent=$('#'+s).value+'%');
+const vBands=()=>ISOZ[$('#vGrp').value][$('#vMnt').value];
+const zoneOf=(v,b)=>v<b[0]?['A','zoneA']:v<b[1]?['B','zoneB']:v<b[2]?['C','zoneC']:['D','zoneD'];
+function dftOf(w,fs,maxF,bins){const N=w.length,out=[];
+ for(let k=1;k<=bins;k++){const f=k*maxF/bins;let re=0,im=0;
+  for(let i=0;i<N;i++){const win=.5-.5*Math.cos(2*Math.PI*i/(N-1)),ang=2*Math.PI*f*i/fs;
+   re+=w[i]*win*Math.cos(ang);im-=w[i]*win*Math.sin(ang)}
+  out.push([f,2*Math.hypot(re,im)/N*VSCALE])}return out}
+function vibTick(){const rpm=+$('#vRpm').value,f0=rpm/60,N=512,fs=512;
+ const d=+$('#vD').value,D=+$('#vPd').value,n=+$('#vN').value;
+ const BPFO=n/2*f0*(1-d/D),BPFI=n/2*f0*(1+d/D),BSF=D*f0/(2*d);
+ const u=+$('#vUnbal').value/100,mi=+$('#vMisal').value/100,be=+$('#vBear').value/100,lo=+$('#vLoose').value/100;
+ const w=[];for(let i=0;i<N;i++){const t=i/fs;
+  let x=u*Math.sin(2*Math.PI*f0*t)+mi*.6*Math.sin(2*Math.PI*2*f0*t)+be*.45*Math.sin(2*Math.PI*BPFO*t);
+  if(lo>0)x+=lo*.25*(Math.sin(2*Math.PI*3*f0*t)+.7*Math.sin(2*Math.PI*4*f0*t)+.5*Math.sin(2*Math.PI*5*f0*t));
+  x+=(Math.random()-.5)*.12;if(lo>0)x*=1+lo*.3*Math.sin(Math.PI*f0*t);w.push(x)}
+ const rms=Math.sqrt(w.reduce((a,v)=>a+v*v,0)/N)*VSCALE;
+ vWave=w;vSpecData=dftOf(w,fs,220,220);
+ plotLine($('#vWave'),[{data:w.map(v=>v*VSCALE),color:'#00e5c3'}]);
+ plotLine($('#vSpec'),[{data:vSpecData.map(p=>p[1]),color:'#3fa9f5'}]);
+ const cands=[[f0,'1× Unbalance'],[2*f0,'2× Misalignment'],[3*f0,'3× Looseness'],[BPFO,'BPFO outer race'],[BPFI,'BPFI inner race'],[BSF,'BSF ball spin']];
+ const pk=[...vSpecData].sort((a,b)=>b[1]-a[1]).slice(0,40),used=[],rows=[];
+ for(const[f,a]of pk){if(rows.length>=6)break;if(used.some(x=>Math.abs(x-f)<3))continue;used.push(f);
+  const c=cands.find(([cf])=>Math.abs(cf-f)<Math.max(.8,cf*.035));rows.push([fmt(f,1),fmt(a,2),c?c[1]:'—'])}
+ tbl($('#vPeaks'),['Freq (Hz)','mm/s','Diagnosis'],rows);
+ $('#vFreqs').innerHTML='1×='+fmt(f0,2)+' Hz · 2×='+fmt(2*f0,2)+' · BPFO='+fmt(BPFO,2)+' · BPFI='+fmt(BPFI,2)+' · BSF='+fmt(BSF,2);
+ const b=vBands(),[zl,zc]=zoneOf(rms,b);
+ $('#vRms').textContent=fmt(rms,2);
+ const zb=$('#vZone');zb.textContent='ZONE '+zl;zb.className='pill '+zc;
+ vTrend.push(rms);if(vTrend.length>100)vTrend.shift();
+ plotLine($('#vTrend'),[{data:vTrend,color:'#3fa9f5'}],{hline:b[1]});
+ if(++vTickN%10===0)vSaveSnap(rms,zl);
+ if(vNavIdx<0)$('#vSnap').textContent='LIVE — snapshots har 5 s auto-save hote hain ('+vSnaps.length+' saved).'}
+function vibDraw(){plotLine($('#vWave'),[{data:vWave.map(v=>v*VSCALE),color:'#00e5c3'}]);
+ plotLine($('#vSpec'),[{data:vSpecData.map(p=>p[1]),color:'#3fa9f5'}]);
+ plotLine($('#vTrend'),[{data:vTrend,color:'#3fa9f5'}],{hline:vBands()[1]})}
+function vSaveSnap(rms,z){vSnaps.unshift({t:new Date().toLocaleTimeString(),rms:fmt(rms,2),z,u:$('#vUnbal').value,mi:$('#vMisal').value,be:$('#vBear').value,lo:$('#vLoose').value,rpm:$('#vRpm').value});
+ vSnaps=vSnaps.slice(0,60);LS.s('vSnaps',vSnaps);vRenderSnaps()}
+function vRenderSnaps(){tbl($('#vTbl'),['Time','RMS mm/s','Zone','1×%','2×%','BPFO%','Harm%','RPM'],vSnaps.map(s=>[s.t,s.rms,s.z,s.u,s.mi,s.be,s.lo,s.rpm]))}
+function vShowNav(){if(vNavIdx<0){$('#vNav').textContent='';$('#vSnap').textContent='LIVE — snapshots har 5 s auto-save hote hain ('+vSnaps.length+' saved).';return}
+ const s=vSnaps[vNavIdx];$('#vNav').textContent='(snapshot '+(vNavIdx+1)+'/'+vSnaps.length+')';
+ $('#vSnap').innerHTML='⏪ SNAPSHOT '+s.t+' — RMS <b>'+s.rms+'</b> mm/s · Zone <b>'+s.z+'</b> · 1× '+s.u+'% · 2× '+s.mi+'% · BPFO '+s.be+'% · Harm '+s.lo+'% · '+s.rpm+' RPM'}
+$('#vPrev').onclick=()=>{if(!vSnaps.length)return;vNavIdx=Math.min(vNavIdx+1,vSnaps.length-1);vShowNav()};
+$('#vNext').onclick=()=>{vNavIdx=Math.max(vNavIdx-1,-1);vShowNav()};
+$('#vLive').onclick=()=>{vNavIdx=-1;vShowNav()};
+$('#vCsv').onclick=()=>download('induspro_vibration.csv',csvOf([['Time','RMS','Zone','Unbal%','Misalign%','Bearing%','Looseness%','RPM'],...vSnaps.map(s=>[s.t,s.rms,s.z,s.u,s.mi,s.be,s.lo,s.rpm])]));
+$('#vClr').onclick=()=>{vSnaps=[];vNavIdx=-1;LS.s('vSnaps',vSnaps);vRenderSnaps();vShowNav()};
+SIMS.vibro={start(){if(!vTimer){vTimer=setInterval(vibTick,500);vibTick()}},stop(){clearInterval(vTimer);vTimer=null}};
+vRenderSnaps();
+
+/* ============ 13. HYPERPRO CALC ============ */
+let calAns=null,calHistArr=[];
+const KEYS=[['7','8','9','÷','(',')'],['4','5','6','×','^','√'],['1','2','3','−','sin','cos'],['0','.',',','+','tan','π'],['log','ln','fact','EE','E','ans']];
+KEYS.flat().forEach(k=>{const b=document.createElement('button');b.className='btn';b.textContent=k;
+ b.onclick=()=>{$('#calDisp').value+=(k==='ans'?(calAns!==null?calAns:''):k)};$('#calKeypad').appendChild(b)});
+function calcEval(ex){const deg=$('#calDeg').checked;
+ let s=ex.replace(/×/g,'*').replace(/÷/g,'/').replace(/−/g,'-').replace(/√/g,'sqrt').replace(/π/g,'PI').replace(/\^/g,'**').replace(/EE/g,'*1e');
+ s=s.replace(/\b(sin|cos|tan|asin|acos|atan)\(/g,(m,f)=>'D'+f+'(');
+ s=s.replace(/\bfact\(/g,'FACT(').replace(/\blog\(/g,'MLOG(').replace(/\bln\(/g,'MLN(').replace(/\bexp\(/g,'MEXP(');
+ if(/[^0-9a-zA-Z_+\-*/().,%\s]/.test(s))throw'Invalid characters';
+ if(/(window|document|alert|eval|function|localStorage|fetch|import|constructor)/i.test(s))throw'Not allowed';
+ const ctx={PI:Math.PI,E:Math.E,sqrt:Math.sqrt,abs:Math.abs,round:Math.round,floor:Math.floor,ceil:Math.ceil,
+  Dsin:x=>Math.sin(deg?x*Math.PI/180:x),Dcos:x=>Math.cos(deg?x*Math.PI/180:x),Dtan:x=>Math.tan(deg?x*Math.PI/180:x),
+  Dasin:x=>deg?Math.asin(x)*180/Math.PI:Math.asin(x),Dacos:x=>deg?Math.acos(x)*180/Math.PI:Math.acos(x),Datan:x=>deg?Math.atan(x)*180/Math.PI:Math.atan(x),
+  MLOG:x=>Math.log10(x),MLN:Math.log,MEXP:Math.exp,
+  FACT:n=>{n=Math.floor(n);if(n<0||n>170)throw'fact range';let r=1;for(let i=2;i<=n;i++)r*=i;return r}};
+ return new Function(...Object.keys(ctx),'"use strict";return ('+s+')')(...Object.values(ctx))}
+function calHistR(){tbl($('#calHist'),['Expression','Result'],calHistArr.map(r=>[r[0],r[1]]))}
+function calDo(){const ex=$('#calDisp').value.trim();if(!ex)return;
+ try{const r=calcEval(ex),out=Number.isFinite(r)?+r.toPrecision(12):r;calAns=out;
+  $('#calDisp').value=String(out);$('#calMem').textContent=fmt(out,4);
+  calHistArr.unshift([ex,'='+out]);calHistArr=calHistArr.slice(0,25);calHistR()}
+ catch(e){$('#calMem').textContent='Error: '+e}}
+$('#calEq').onclick=calDo;
+$('#calClr').onclick=()=>{$('#calDisp').value=''};
+$('#calBack').onclick=()=>{$('#calDisp').value=$('#calDisp').value.slice(0,-1)};
+$('#calDisp').addEventListener('keydown',e=>{if(e.key==='Enter')calDo()});
+const UC={Pressure:{Pa:1,kPa:1e3,bar:1e5,psi:6894.76,MPa:1e6,'mmH₂O':9.80665,mmHg:133.322,atm:101325},
+ Flow:{'m³/h':1,'L/min':1/60,'L/s':.001,'m³/s':1,'gpm(US)':3.78541/3600},
+ Length:{m:1,mm:.001,cm:.01,inch:.0254,ft:.3048},
+ Power:{kW:1,W:.001,HP:.7457,'BTU/h':2.9307e-4,'kcal/h':1.163e-3},
+ Force:{N:1,kN:1e3,kgf:9.80665,lbf:4.448},
+ Torque:{'N·m':1,'kgf·m':9.80665,'lbf·ft':1.3558},
+ Electrical:{A:1,mA:.001,kA:1e3,V:1,mV:.001,kV:1e3,Ω:1,kΩ:1e3,MΩ:1e6},
+ Energy:{kWh:1,J:2.7778e-7,MJ:.27778,BTU:2.9307e-4},
+ Temperature:{'°C':1,'°F':1,K:1,'°R':1}};
+function ucCalc(){const c=$('#ucCat').value,v=+$('#ucVal').value,f=$('#ucFrom').value,t=$('#ucTo').value;let out;
+ if(c==='Temperature'){const toC={'°C':x=>x,'°F':x=>(x-32)*5/9,K:x=>x-273.15,'°R':x=>(x-491.67)*5/9};
+  const fromC={'°C':x=>x,'°F':x=>x*9/5+32,K:x=>x+273.15,'°R':x=>(x+273.15)*9/5+491.67};
+  out=fromC[t](toC[f](v))}
+ else out=v*UC[c][f]/UC[c][t];
+ $('#ucOut').textContent=fmt(out,4)+' '+t}
+function ucFill(){const c=$('#ucCat').value;$('#ucFrom').innerHTML='';$('#ucTo').innerHTML='';
+ Object.keys(UC[c]).forEach(u=>{$('#ucFrom').add(new Option(u,u));$('#ucTo').add(new Option(u,u))});
+ $('#ucTo').selectedIndex=Math.min(1,$('#ucTo').options.length-1);ucCalc()}
+$('#ucCat').onchange=ucFill;$('#ucFrom').onchange=ucCalc;$('#ucTo').onchange=ucCalc;$('#ucVal').oninput=ucCalc;
+Object.keys(UC).forEach(k=>$('#ucCat').add(new Option(k,k)));
+ucFill();
+/* ============ 14. RTD / THERMOCOUPLE ============ */
+const RTD_A=3.9083e-3,RTD_B=-5.775e-7,RTD_C=-4.183e-12;
+function rtdRes(t,R0){let r=1+RTD_A*t+RTD_B*t*t;if(t<0)r+=RTD_C*(t-100)*t*t*t;return R0*r}
+function rtdTemp(R,R0){const r=R/R0,disc=RTD_A*RTD_A-4*RTD_B*(1-r);if(disc<0)return NaN;
+ let t=(-RTD_A+Math.sqrt(disc))/(2*RTD_B);
+ if(t<0){let x=t;for(let i=0;i<40;i++){const f=R0*(1+RTD_A*x+RTD_B*x*x+RTD_C*(x-100)*x*x*x)-R,
+  d=R0*(RTD_A+2*RTD_B*x+RTD_C*(4*x*x*x-300*x*x));x-=f/d}t=x}
+ return t}
+$('#rtdGo').onclick=()=>{const R0=+$('#rtdType').value,v=+$('#rtdVal').value;
+ if($('#rtdMode').value==='t2r')$('#rtdOut').innerHTML='<div class="mid">'+fmt(v,1)+' °C = <b>'+fmt(rtdRes(v,R0),3)+' Ω</b></div>';
+ else $('#rtdOut').innerHTML='<div class="mid">'+fmt(v,3)+' Ω = <b>'+fmt(rtdTemp(v,R0),2)+' °C</b></div>'};
+tbl($('#rtdTbl'),['°C','PT100 Ω','PT1000 Ω','Class B ±°C'],[-50,0,50,100,150,200,250,300,350,400,450,500].map(t=>{const r=rtdRes(t,100);
+ return[t,fmt(r,2),fmt(r*10,1),fmt(0.30+0.005*Math.abs(t),2)]}));
+const TCD={K:[[-200,-5.891],[-100,-3.554],[0,0],[100,4.096],[200,8.138],[300,12.209],[400,16.397],[500,20.644],[600,24.905],[700,29.129],[800,33.275],[900,37.326],[1000,41.276],[1100,45.119],[1200,48.838]],
+ J:[[-100,-4.633],[0,0],[100,5.269],[200,10.779],[300,16.327],[400,21.848],[500,27.393],[600,33.102],[700,39.132],[800,45.499],[900,51.877],[1000,58.139],[1100,63.792],[1200,69.553]],
+ T:[[-200,-5.603],[-100,-3.379],[0,0],[100,4.279],[200,9.288],[300,14.862],[400,20.872]],
+ E:[[-200,-8.825],[-100,-5.375],[0,0],[100,6.319],[200,13.421],[300,21.336],[400,29.464],[500,37.005],[600,45.085],[700,53.112],[800,61.017]]};
+function tcMv(ty,t){const d=TCD[ty];if(t<d[0][0]||t>d[d.length-1][0])return null;
+ for(let i=1;i<d.length;i++)if(t<=d[i][0])return d[i-1][1]+(d[i][1]-d[i-1][1])*(t-d[i-1][0])/(d[i][0]-d[i-1][0]);return null}
+function tcTemp(ty,mv){const d=TCD[ty];if(mv<d[0][1]||mv>d[d.length-1][1])return null;
+ for(let i=1;i<d.length;i++)if(mv<=d[i][1])return d[i-1][0]+(d[i][0]-d[i-1][0])*(mv-d[i-1][1])/(d[i][1]-d[i-1][1]);return null}
+$('#tcGo').onclick=()=>{const ty=$('#tcType').value,v=+$('#tcVal').value,cj=+$('#tcCj').value||0,cjMv=tcMv(ty,cj)||0;
+ if($('#tcMode').value==='t2v'){const m=tcMv(ty,v);
+  $('#tcOut').innerHTML=m===null?'<span class="pill bad">Out of range</span>':'<div class="mid">'+fmt(v,0)+' °C → <b>'+fmt(m,3)+' mV</b></div><div class="mut">Instrument par measured (CJ '+fmt(cj,1)+'°C): '+fmt(m-cjMv,3)+' mV</div>'}
+ else{const t=tcTemp(ty,v+cjMv);
+  $('#tcOut').innerHTML=t===null?'<span class="pill bad">Out of range</span>':'<div class="mid">'+fmt(v,3)+' mV (+CJ '+fmt(cj,1)+'°C) → <b>'+fmt(t,1)+' °C</b></div>'}};
+$('#txGo').onclick=()=>{const lo=+$('#txLo').value,hi=+$('#txHi').value,ma=+$('#txMa').value,pv=lo+(hi-lo)*(ma-4)/16;
+ $('#txOut').innerHTML='<div class="mid">'+fmt(ma,2)+' mA → <b>'+fmt(pv,1)+' °C</b></div>'+(ma<3.6||ma>21?'<span class="pill warn">NAMUR NE43 fault signal!</span>':'<span class="pill ok">Valid span signal</span>')};
+/* ============ 15. HYDRAULIC VALVE SIMULATOR (ISO SYMBOLS) ============ */
+const VST={cfg:'43',center:'closed',act:'sol',pump:false,y1:false,y2:false,m1:false,m2:false,
+ pilotP:0,sysP:0,pA:0,pB:0,pos:50,flow:0,dash:0,relOpen:false,lastRel:undefined,state:'',f:{},log:LS.g('vsLog',[]),timer:null};
+const vsRelief=()=>+$('#vsRelief').value||150,vsQ=()=>+$('#vsQ').value||40,vsLoad=()=>+$('#vsLoad').value||35;
+function vsLogEv(ev){VST.log.unshift({t:new Date().toLocaleTimeString(),ev});VST.log=VST.log.slice(0,50);LS.s('vsLog',VST.log);vsLogR()}
+function vsLogR(){tbl($('#vsLogTbl'),['Time','Event'],VST.log.slice(0,20).map(r=>[r.t,r.ev]))}
+vsLogR();
+function vsMsg(A,B,pA_,pB_,aT){const c=VST.cfg;
+ if(c==='chk')return'CHECK VALVE: P→A free flow, reverse BLOCKED';
+ if(c==='22nc'||c==='22no')return pA_?'2/2 OPEN — flow P→A':'2/2 CLOSED — P BLOCKED (dead-head)';
+ if(c==='32nc'||c==='32no')return pA_?'3/2: P→A — cylinder EXTEND':'3/2: A→T — spring RETRACT, P blocked';
+ if(c==='42')return pA_?'4/2: P→A, B→T — EXTEND':'4/2: P→B, A→T — RETRACT';
+ if(A)return'4/3 pos-a: P→A, B→T — EXTEND';
+ if(B)return'4/3 pos-b: P→B, A→T — RETRACT';
+ return{closed:'4/3 CENTER-CLOSED: P,T,A,B all BLOCKED',tandem:'4/3 CENTER-TANDEM: P→T (pump unload), A/B hold',open:'4/3 CENTER-OPEN: all→T (float)',float:'4/3 CENTER-FLOAT: A,B→T, P blocked ⚠'}[VST.center]}
+function vsReset(){VST.pump=false;VST.y1=VST.y2=false;VST.m1=VST.m2=false;VST.pos=50;
+ VST.sysP=0;VST.pilotP=0;VST.pA=0;VST.pB=0;VST.flow=0;VST.temp=32;VST.relOpen=false;VST.state='';
+ $('#vsPump').textContent='▶ Pump';vsLogEv('⟲ SYSTEM RESET — sab defaults par wapas')}
+$('#vsReset').onclick=vsReset;
+function vsTick(){
+ VST.dash=(VST.dash-4)%2000;
+ const relSet=vsRelief(),Qp=vsQ(),loadP=vsLoad();
+ const pil=(VST.act==='pil')&&(VST.y1||VST.y2)&&VST.pump;
+ VST.pilotP+=((pil?42:0)-VST.pilotP)*.12;if(!pil&&VST.pilotP<0.4)VST.pilotP=0;
+ const thr=VST.pilotP>=25;
+ const A=VST.act==='man'?VST.m1:(VST.act==='sol'?VST.y1:(VST.y1&&thr));
+ const B=VST.act==='man'?VST.m2:(VST.act==='sol'?VST.y2:(VST.y2&&thr));
+ const c=VST.cfg,cen=VST.center;
+ let pA_=0,pB_=0,aT=0,bT=0,pT=0,pBlocked=0;
+ if(c==='chk'){pA_=VST.pump?1:0;pBlocked=VST.pump?0:1}
+ else if(c==='22nc'){pA_=A?1:0;pBlocked=A?0:1}
+ else if(c==='22no'){pA_=A?0:1;pBlocked=A?1:0}
+ else if(c==='32nc'){if(A)pA_=1;else{aT=1;pBlocked=1}}
+ else if(c==='32no'){if(!A)pA_=1;else{aT=1;pBlocked=1}}
+ else if(c==='42'){if(A){pA_=1;bT=1}else{pB_=1;aT=1}}
+ else if(c==='43'){
+  if(A){pA_=1;bT=1}else if(B){pB_=1;aT=1}
+  else if(cen==='closed')pBlocked=1;
+  else if(cen==='tandem')pT=1;
+  else if(cen==='open'){pT=1;aT=1;bT=1}
+  else{pBlocked=1;aT=1;bT=1}}
+ let dir=0,moving=false;
+ const atA=VST.pos>=99.9,atB=VST.pos<=0.1;
+ if(pA_&&!atA&&VST.pump)dir=1;else if(pB_&&!atB&&VST.pump)dir=-1;
+ else if(aT&&!pA_&&!pB_&&(c==='32nc'||c==='32no')&&VST.pos>0.5)dir=-1;
+ if(dir!==0){VST.pos=Math.max(0,Math.min(100,VST.pos+dir*Qp*0.055));moving=true;VST.flow=Qp}else VST.flow=0;
+ const stalled=(pA_&&atA)||(pB_&&atB);
+ const blocked=(VST.pump&&(pBlocked||stalled))?1:0;
+ let target=0;
+ if(!VST.pump)target=0;else if(pT)target=8;else if(moving)target=loadP;else if(blocked)target=relSet;else target=3;
+ VST.sysP+=(target-VST.sysP)*.15+(Math.random()-.5)*.7;if(VST.sysP<0)VST.sysP=0;
+ VST.relOpen=VST.pump&&VST.sysP>=relSet*.97;
+ VST.pA=pA_?VST.sysP:(aT?1:(c==='43'&&cen==='closed'&&!A&&!B?VST.pos/100*VST.sysP*.5:0));
+ VST.pB=pB_?VST.sysP:(bT?1:(c==='43'&&cen==='closed'&&!A&&!B?(1-VST.pos/100)*VST.sysP*.5:0));
+ VST.f={A,B,pA_,pB_,aT,bT,pT,blocked,moving,dir};
+ const st=c+'|'+(c==='43'?cen+'|':'')+(A?'a':B?'b':'-');
+ if(st!==VST.state){VST.state=st;vsLogEv(vsMsg(A,B,pA_,pB_,aT))}
+ if(VST.lastRel!==undefined&&VST.relOpen!==VST.lastRel)vsLogEv(VST.relOpen?'⚠ RELIEF OPEN — pump oil → tank (HEAT!)':'Relief closed');
+ VST.lastRel=VST.relOpen;
+ $('#vgSys').textContent=fmt(VST.sysP,0);$('#vgPil').textContent=fmt(VST.pilotP,0);
+ $('#vgA').textContent=fmt(VST.pA,0);$('#vgB').textContent=fmt(VST.pB,0);$('#vgQ').textContent=fmt(VST.flow,0);
+ $('#vgPos').textContent=fmt(VST.pos,0)+'%';$('#vgPosBar').style.width=VST.pos+'%';
+ let s1,cls='ok';
+ if(!VST.pump){s1='PUMP OFF';cls=''}
+ else if(VST.relOpen){s1='⚠ RELIEF OPEN — ENERGY → HEAT';cls='bad'}
+ else if(pT){s1='PUMP UNLOADED → TANK'}
+ else if(moving){s1='CYLINDER '+(dir>0?'EXTENDING ▶':'◀ RETRACTING')}
+ else if(blocked){s1='DEAD-HEAD — PRESSURE → RELIEF';cls='warn'}
+ else{s1='IDLE';cls='warn'}
+ $('#vgSt').innerHTML='<span class="pill '+cls+'">'+s1+'</span>';
+ /* ---- LIVE PORT BADGES ---- */
+ const sb=(id,st,cl)=>{const e=$(id);e.textContent=st;e.className='pill '+cl};
+ sb('#vsStP',!VST.pump?'P: OFF':pT?'P: →T UNLOAD':blocked?'P: BLOCKED':'P: FEED ▶',!VST.pump?'':pT?'ok':blocked?'bad':'warn');
+ sb('#vsStT',(pT||aT||bT)?'T: RETURN ⬇':'T: dry',(pT||aT||bT)?'ok':'');
+ sb('#vsStA',pA_?'A: PRESSURE (EXT)':aT?'A: →TANK':'A: HOLD',pA_?'warn':aT?'ok':'');
+ sb('#vsStB',pB_?'B: PRESSURE (RET)':bT?'B: →TANK':'B: HOLD',pB_?'warn':bT?'ok':'');
+ $('#vsPath').textContent='Now: '+vsMsg(A,B,pA_,pB_,aT);
+ vsDraw()}
+function vsDraw(){
+ const cv=$('#vsCv');if(!cv)return;const[x,W,H]=fitCv(cv);x.clearRect(0,0,W,H);
+ const cs=k=>getComputedStyle(document.body).getPropertyValue(k).trim();
+ const cw=cs('--line')||'#24384c',cp=cs('--panel')||'#131e29',ct=cs('--txt')||'#eee',cm=cs('--mut')||'#889';
+ const ca='#00e5c3',co='#f5a623',cr='#ff5c5c',cg='#2ecc71',cd='#3d5a75';
+ const f=VST.f||{},c=VST.cfg,cen=VST.center;
+ /* text helper: hamesha dark background ke saath — lines kabhi text par nahi */
+ const label=(tx,ty,txt,col,bg)=>{x.font='bold 10px system-ui';const w=x.measureText(txt).width;
+  if(bg!==false){x.fillStyle='rgba(10,22,34,.85)';x.fillRect(tx-3,ty-10,w+6,14)}
+  x.fillStyle=col;x.fillText(txt,tx,ty);return w};
+ /* ---- geometry ---- */
+ const vw=52,vh=70,gap=6,vy=150;
+ let nB,vx;
+ if(c==='chk'){nB=1;vx=300}else if(c==='43'){nB=3;vx=240}else{nB=2;vx=270}
+ const rx=vx+(nB-1)*(vw+gap);
+ let P={x:rx+14,y:vy+vh},T={x:rx+38,y:vy+vh},A={x:rx+14,y:vy},B={x:rx+38,y:vy};
+ if(c==='chk'){P.x=vx+14;A.x=vx+38}
+ if(c==='22nc'||c==='22no'){P.x=rx+14;A.x=rx+38}
+ if(c==='32nc'||c==='32no'){T={x:rx+38,y:vy+vh}}
+ const four=c==='42'||c==='43';
+ /* ---- tank + pump ---- */
+ x.strokeStyle=cw;x.lineWidth=2;x.beginPath();x.moveTo(20,318);x.lineTo(650,318);x.stroke();
+ x.beginPath();x.arc(45,296,14,0,7);x.fillStyle=cp;x.fill();
+ x.strokeStyle=VST.pump?cg:cd;x.lineWidth=2;x.stroke();
+ x.beginPath();x.moveTo(40,303);x.lineTo(45,287);x.lineTo(50,303);x.closePath();x.fillStyle=VST.pump?cg:cm;x.fill();
+ /* ---- relief ---- */
+ x.strokeStyle=f.relOpen?cr:cd;x.lineWidth=2;
+ x.beginPath();x.moveTo(200,296);x.lineTo(200,268);x.stroke();
+ x.strokeRect(186,238,28,30);
+ x.beginPath();x.moveTo(190,262);x.lineTo(200,250);x.lineTo(210,262);x.stroke();
+ if(f.relOpen){x.strokeStyle=cr;x.lineWidth=3;x.setLineDash([8,6]);x.lineDashOffset=VST.dash;
+  x.beginPath();x.moveTo(214,253);x.lineTo(236,253);x.lineTo(236,318);x.stroke();x.setLineDash([])}
+ /* ---- external lines ---- */
+ const pFlow=VST.pump&&(f.pA_||f.pB_||f.pT);
+ x.lineWidth=3;x.beginPath();x.moveTo(59,296);x.lineTo(P.x,296);x.lineTo(P.x,P.y+4);
+ if(pFlow){x.setLineDash([11,8]);x.lineDashOffset=VST.dash}
+ x.strokeStyle=!VST.pump?cd:(pFlow?co:cd);x.stroke();x.setLineDash([]);
+ x.lineWidth=2.5;x.beginPath();x.moveTo(T.x,T.y+4);x.lineTo(T.x,318);
+ const tAny=f.pT||f.aT||f.bT;
+ if(tAny){x.setLineDash([11,8]);x.lineDashOffset=-VST.dash}
+ x.strokeStyle=tAny?ca:cd;x.stroke();x.setLineDash([]);
+ const aCol=f.pA_?co:(f.aT?ca:cd),aRev=f.aT&&!f.pA_;
+ x.lineWidth=3;x.beginPath();x.moveTo(A.x,A.y-4);x.lineTo(A.x,132);x.lineTo(470,132);x.lineTo(470,156);
+ if(f.pA_||f.aT){x.setLineDash([11,8]);x.lineDashOffset=aRev?-VST.dash:VST.dash}
+ x.strokeStyle=aCol;x.stroke();x.setLineDash([]);
+ if(four){const bCol=f.pB_?co:(f.bT?ca:cd),bRev=f.bT&&!f.pB_;
+  x.beginPath();x.moveTo(B.x,B.y-4);x.lineTo(B.x,120);x.lineTo(648,120);x.lineTo(648,182);x.lineTo(620,182);
+  if(f.pB_||f.bT){x.setLineDash([11,8]);x.lineDashOffset=bRev?-VST.dash:VST.dash}
+  x.strokeStyle=bCol;x.stroke();x.setLineDash([])}
+ /* ---- ISO valve symbol ---- */
+ const sqX=i=>vx+i*(vw+gap);
+ let act=0;
+ if(c==='43')act=f.A?0:(f.B?2:1);
+ else act=(c==='chk')?0:(f.A||(c==='32no'&&!f.A)||(c==='22no'&&!f.A)?0:1);
+ for(let i=0;i<nB;i++){const sx=sqX(i),on=i===act;
+  x.fillStyle=on?'rgba(0,180,216,.16)':cp;x.fillRect(sx,vy,vw,vh);
+  x.strokeStyle=on?ca:cd;x.lineWidth=on?2.5:1.4;x.strokeRect(sx,vy,vw,vh);
+  if(on){x.shadowBlur=10;x.shadowColor=ca;x.strokeRect(sx,vy,vw,vh);x.shadowBlur=0}}
+ const arrow=(x1,y1,x2,y2,col,lw)=>{x.strokeStyle=col;x.lineWidth=lw||2.2;x.beginPath();x.moveTo(x1,y1);x.lineTo(x2,y2);x.stroke();
+  const a=Math.atan2(y2-y1,x2-x1);x.fillStyle=col;x.beginPath();
+  x.moveTo(x2,y2);x.lineTo(x2-9*Math.cos(a-.42),y2-9*Math.sin(a-.42));x.lineTo(x2-9*Math.cos(a+.42),y2-9*Math.sin(a+.42));x.closePath();x.fill()};
+ const blk=(px,py,dx,dy,col)=>{const ex=px+dx,ey=py+dy;x.strokeStyle=col;x.lineWidth=2.2;
+  x.beginPath();x.moveTo(px,py);x.lineTo(ex,ey);x.stroke();
+  x.beginPath();x.moveTo(ex-dy*8,ey+dx*8);x.lineTo(ex+dy*8,ey-dx*8);x.stroke()};
+ const AC=on=>on?co:cm,TC=on=>on?ca:cm;
+ const sx=sqX(act),mx=sx+vw/2,my=vy+vh/2;
+ if(c==='chk'){
+  x.strokeStyle=AC(f.pA_);x.lineWidth=2.2;
+  x.beginPath();x.moveTo(sx+8,my+10);x.lineTo(mx,my+2);x.lineTo(sx+vw-8,my+10);x.stroke();
+  const lift=f.pA_?5:0,byc=my-8-lift;
+  x.beginPath();x.arc(mx,byc,8,0,7);x.fillStyle=cp;x.fill();x.strokeStyle=f.pA_?co:cm;x.lineWidth=2;x.stroke();
+  if(f.pA_)arrow(sx+14,vy+vh-10,sx+vw-14,vy+10,co)}
+ else{
+  const N=(c==='22nc'||c==='22no');
+  if(act===0){
+   if(N){arrow(sx+12,vy+vh-8,sx+vw-12,vy+8,co)}
+   else if(c==='32nc'||c==='32no'){arrow(sx+12,vy+vh-8,sx+vw-12,vy+8,co);blk(sx+vw-12,vy+vh,0,12,cm)}
+   else{arrow(sx+14,vy+vh-8,sx+14,vy+8,co);arrow(sx+vw-14,vy+8,sx+vw-14,vy+vh-8,co)}
+  }else if(act===2){
+   arrow(sx+12,vy+vh-8,sx+vw-12,vy+8,co);arrow(sx+12,vy+8,sx+vw-12,vy+vh-8,co)
+  }else{
+   if(c==='22nc'){blk(mx,vy+vh,0,-14,cm);blk(mx,vy,0,14,cm)}
+   else if(c==='22no'){arrow(sx+12,vy+vh-8,sx+vw-12,vy+8,co)}
+   else if(c==='32nc'){arrow(sx+12,vy+8,sx+vw-12,vy+vh-8,TC(!f.A));blk(sx+12,vy+vh,0,-14,cm)}
+   else if(c==='32no'){arrow(sx+12,vy+vh-8,sx+vw-12,vy+8,co);blk(sx+vw-12,vy+vh,0,-14,cm)}
+   else if(c==='42'){arrow(sx+12,vy+vh-8,sx+vw-12,vy+8,co);arrow(sx+12,vy+8,sx+vw-12,vy+vh-8,co)}
+   else if(cen==='closed'){blk(mx-12,vy+vh,0,-14,cm);blk(mx+12,vy+vh,0,-14,cm);blk(mx-12,vy,0,14,cm);blk(mx+12,vy,0,14,cm)}
+   else if(cen==='tandem'){arrow(sx+10,my,sx+vw-10,my,ca);blk(mx-12,vy,0,14,cm);blk(mx+12,vy,0,14,cm)}
+   else if(cen==='open'){arrow(sx+12,vy+vh-6,mx,my-4,ca);arrow(sx+vw-12,vy+vh-6,mx,my-4,ca);arrow(sx+12,vy+6,mx,my+4,ca);arrow(sx+vw-12,vy+6,mx,my+4,ca)}
+   else{blk(sx+10,my,-14,0,cm);arrow(sx+22,my,sx+vw-10,my,ca);blk(mx-12,vy,0,14,cm);blk(mx+12,vy,0,14,cm)}
+  }}
+ /* spring + solenoids */
+ if(c!=='chk'){x.strokeStyle=cm;x.lineWidth=1.8;x.beginPath();
+  const gxp=sqX(nB-1)+vw+4;
+  x.moveTo(gxp,my-12);x.lineTo(gxp+7,my-6);x.lineTo(gxp,my);x.lineTo(gxp+7,my+6);x.lineTo(gxp,my+12);x.stroke();
+  label(gxp-4,my+28,'spring',cm)}
+ const sol=(bx,on,lab)=>{x.fillStyle=on?'rgba(46,204,113,.25)':cp;x.fillRect(bx,my-13,16,26);
+  x.strokeStyle=on?cg:cd;x.lineWidth=on?2:1.4;x.strokeRect(bx,my-13,16,26);
+  if(on){x.strokeStyle=cg;x.beginPath();x.moveTo(bx+3,my+7);x.lineTo(bx+13,my-7);x.stroke()}
+  label(bx-2,my+30,lab,on?cg:cm)};
+ if(c!=='chk')sol(vx-20,f.A||((c==='32no'||c==='22no')&&!f.A),'Y1');
+ if(c==='43')sol(sqX(2)+vw+4,f.B,'Y2');
+ if(VST.act==='pil'){const pOn=VST.pilotP>=25;
+  x.fillStyle=pOn?'rgba(46,204,113,.2)':cp;x.fillRect(258,66,52,26);x.strokeStyle=cd;x.strokeRect(258,66,52,26);
+  if(pOn){x.strokeStyle=cg;x.beginPath();x.moveTo(264,84);x.lineTo(272,72);x.lineTo(280,84);x.stroke()}
+  label(264,83,'PILOT',pOn?cg:cm,false);
+  x.setLineDash([5,4]);x.strokeStyle=pOn?cg:cm;x.beginPath();x.moveTo(284,92);x.lineTo(284,vy);x.stroke();x.setLineDash([]);
+  label(246,56,'PILOT '+fmt(VST.pilotP,0)+' bar (≥25 shift)',pOn?cg:cm)}
+ /* ---- cylinder ---- */
+ x.fillStyle=cp;x.strokeStyle=cd;x.lineWidth=2;x.fillRect(470,150,150,64);x.strokeRect(470,150,150,64);
+ const px=476+VST.pos*1.34,al=Math.min(.6,VST.pA/160),bl=Math.min(.6,VST.pB/160);
+ x.fillStyle='rgba(245,166,35,'+al+')';x.fillRect(471,151,Math.max(0,px-471),62);
+ x.fillStyle='rgba(0,229,195,'+bl+')';x.fillRect(px+10,151,Math.max(0,618-px-10),62);
+ x.fillStyle=ct;x.fillRect(px,152,10,60);x.fillRect(px+10,177,Math.max(0,648-px-10),8);
+ if(!four){x.strokeStyle=cm;x.lineWidth=1.5;x.beginPath();
+  x.moveTo(598,158);x.lineTo(606,164);x.lineTo(598,170);x.lineTo(606,176);x.lineTo(598,182);x.lineTo(606,188);x.lineTo(598,194);x.lineTo(606,200);x.stroke()}
+ /* ---- LABELS & BADGES (sab se upar — lines ke baad) ---- */
+ label(276,312,'PUMP',cm);label(600,312,'TANK',cm);
+ label(188,232,'RELIEF '+fmt(vsRelief(),0)+' bar'+(f.relOpen?' ⚠ OPEN':''),f.relOpen?cr:cm);
+ label(476,146,'CAP',cm);label(584,146,'ROD',cm);
+ if(!four)label(556,144,'spring return',cm);
+ const badge=(px2,py2,lab,col)=>{x.beginPath();x.arc(px2,py2,11,0,7);x.fillStyle='rgba(10,22,34,.95)';x.fill();
+  x.strokeStyle=col;x.lineWidth=2;x.stroke();x.fillStyle=col;x.font='bold 11px Consolas,monospace';
+  x.textAlign='center';x.fillText(lab,px2,py2+4);x.textAlign='left'};
+ badge(P.x,238,'P',!VST.pump?cm:(pFlow||f.blocked?co:cd));
+ badge(T.x,262,'T',tAny?ca:cm);
+ badge(A.x,108,'A',f.pA_?co:(f.aT?ca:cm));
+ if(four)badge(B.x,92,'B',f.pB_?co:(f.bT?ca:cm));
+ /* title — top-left corner, lines se door */
+ x.font='bold 11px system-ui';
+ const ttl=$('#vsCfg').selectedOptions[0].text.toUpperCase()+(c==='43'?' — '+cen.toUpperCase()+' CENTER':'');
+ const tw=x.measureText(ttl).width;
+ x.fillStyle='rgba(10,22,34,.9)';x.fillRect(10,10,tw+16,20);
+ x.fillStyle=ca;x.fillText(ttl,18,24);
+ x.font='bold 10px system-ui'}
+
+
+const hold=(id,k)=>{const e=$('#'+id);e.addEventListener('pointerdown',()=>VST[k]=true);
+ ['pointerup','pointerleave','pointercancel'].forEach(ev=>e.addEventListener(ev,()=>VST[k]=false))};
+hold('vsM1','m1');hold('vsM2','m2');
+$('#vsY1').onclick=()=>VST.y1=!VST.y1;$('#vsY2').onclick=()=>VST.y2=!VST.y2;
+$('#vsPump').onclick=()=>{VST.pump=!VST.pump;$('#vsPump').textContent=VST.pump?'⏸ Pump':'▶ Pump';vsLogEv(VST.pump?'Pump STARTED':'Pump STOPPED')};
+$('#vsCfg').onchange=()=>{VST.cfg=$('#vsCfg').value;VST.pos=50;VST.sysP=0;VST.state='';vsLogEv('Config: '+$('#vsCfg').selectedOptions[0].text);vsBtns()};
+$('#vsCenter').onchange=()=>{VST.center=$('#vsCenter').value;VST.state=''};
+$('#vsAct').onchange=()=>{VST.act=$('#vsAct').value;VST.y1=VST.y2=false;vsBtns()};
+$('#vsCsv').onclick=()=>download('induspro_valvelog.csv',csvOf([['Time','Event'],...VST.log]));
+$('#vsClr').onclick=()=>{VST.log=[];LS.s('vsLog',[]);vsLogR()};
+function vsBtns(){const man=VST.act==='man',pil=VST.act==='pil',noB=VST.cfg!=='42'&&VST.cfg!=='43';
+ $('#vsM1').disabled=!man;$('#vsM2').disabled=!man||noB;
+ $('#vsY1').disabled=man;$('#vsY2').disabled=man||noB;
+ $('#vsY1').textContent=pil?'PV1 a':'Y1 a';$('#vsY2').textContent=pil?'PV2 b':'Y2 b';
+ $('#vsCenter').disabled=VST.cfg!=='43'}
+vsBtns();
+SIMS.valvesim={start(){if(!VST.timer)VST.timer=setInterval(vsTick,90)},stop(){clearInterval(VST.timer);VST.timer=null}};
+
+/* ============ 16. VALVE SIM TURBO (gauges + oil temp) ============ */
+if(!window._vsTurbo){window._vsTurbo=1;
+VST.temp=32;VST.heatKW=0;
+if(!$('#vsOilStrip')){$('#vgSt').insertAdjacentHTML('afterend','<div id="vsOilStrip" style="margin-top:8px"><div class="mut" style="font-family:Consolas,monospace">OIL <b id="vsT">32</b>°C · HEAT <b id="vsH">0.0</b> kW · <span id="vsOilSt" class="pill ok">OIL OK</span></div><div style="height:10px;background:var(--panel);border-radius:5px;overflow:hidden;margin-top:4px"><div id="vsTBar" style="height:100%;width:15%;background:linear-gradient(90deg,#00e5c3,#f5a623,#ff5c5c)"></div></div></div>')}
+function vsGauges(){const cv=$('#vsCv');if(!cv)return;const[x,W,H]=fitCv(cv);
+ const cs=k=>getComputedStyle(document.body).getPropertyValue(k).trim();
+ x.save();x.globalAlpha=.94;x.fillStyle=cs('--panel')||'#131e29';x.fillRect(8,198,168,74);
+ x.globalAlpha=1;x.strokeStyle=cs('--line');x.lineWidth=1;x.strokeRect(8,198,168,74);
+ x.fillStyle=cs('--mut');x.font='bold 8px system-ui';x.fillText('TECH PANEL',14,209);
+ const g=(cx,cy,r,val,max,label,col)=>{x.save();
+  x.beginPath();x.arc(cx,cy,r,0,7);x.fillStyle='rgba(10,22,34,.9)';x.fill();
+  x.lineWidth=2;x.strokeStyle='#2c4258';x.stroke();
+  for(let i=0;i<=10;i++){const a=Math.PI*1.25+Math.PI*1.5*i/10;
+   x.beginPath();x.moveTo(cx+Math.cos(a)*(r-3),cy+Math.sin(a)*(r-3));
+   x.lineTo(cx+Math.cos(a)*(r-8),cy+Math.sin(a)*(r-8));
+   x.strokeStyle=i%5?'#44586c':'#8fa6ba';x.lineWidth=i%5?1:2;x.stroke()}
+  const fr=Math.max(0,Math.min(1,val/max)),a=Math.PI*1.25+Math.PI*1.5*fr;
+  x.shadowBlur=8;x.shadowColor=col;
+  x.beginPath();x.moveTo(cx,cy);x.lineTo(cx+Math.cos(a)*(r-11),cy+Math.sin(a)*(r-11));
+  x.strokeStyle=col;x.lineWidth=2.4;x.stroke();x.shadowBlur=0;
+  x.beginPath();x.arc(cx,cy,2.6,0,7);x.fillStyle=col;x.fill();
+  x.fillStyle='#8fa6ba';x.font='bold 8px system-ui';x.textAlign='center';
+  x.fillText(label,cx,cy+r-10);
+  x.fillStyle=col;x.font='bold 10px Consolas,monospace';x.fillText(fmt(val,0),cx,cy+r*0.58);
+  x.textAlign='left';x.restore()};
+ g(52,236,26,VST.sysP,Math.max(50,vsRelief()),'SYS bar','#f5a623');
+ g(124,236,26,VST.temp,110,'OIL °C',VST.temp>85?'#ff5c5c':VST.temp>65?'#f5a623':'#00e5c3');
+ x.restore()}
+const _vsDraw0=vsDraw;
+vsDraw=function(){_vsDraw0();try{vsGauges()}catch(e){}};
+const _vsTick0=vsTick;
+vsTick=function(){_vsTick0();
+ const relSet=vsRelief(),Qp=vsQ();
+ VST.heatKW=VST.relOpen?VST.sysP*Qp/600*0.85:(VST.flow>0?VST.sysP*Qp/600*0.10:0);
+ VST.temp+=(VST.relOpen?0.055*VST.sysP/relSet:-0.035);
+ VST.temp=Math.max(25,Math.min(110,VST.temp));
+ if(VST.temp>85&&Math.random()<0.015)vsLogEv('⚠ OIL TEMP '+fmt(VST.temp,0)+'°C — cooler/cavitation check!');
+ $('#vsT').textContent=fmt(VST.temp,0);$('#vsH').textContent=fmt(VST.heatKW,1);
+ const st=$('#vsOilSt');
+ st.textContent=VST.temp>85?'⚠ OVERHEAT':VST.temp>65?'WARM':'OIL OK';
+ st.className='pill '+(VST.temp>85?'bad':VST.temp>65?'warn':'ok');
+ $('#vsTBar').style.width=Math.min(100,(VST.temp-20)/90*100)+'%'};
+}
+
+/* ============ START ============ */
+activateTab('instruments');
+</script>
+<script>if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');</script>
+</body>
+</html>
