@@ -334,6 +334,162 @@ const OWL=['😴 Lazy Boy tip: 3-phase motor ka Inrush 6–8× hota hai — brea
  '😴 Lazy Boy tip: VFD me 30 Hz par chalane se pump ~87% energy bachata hai (P ∝ n³).',
  '😴 Lazy Boy tip: Bearing L10 life — C/P ratio 2× karo to life 8× ho jati hai (ball).'];
 let owlTap=0;$('.brand').addEventListener('click',()=>{owlTap++;if(owlTap>=3){owlTap=0;const e=$('#egg');if(e){const t=OWL[Math.floor(Math.random()*OWL.length)];e.innerHTML='<b>'+t+'</b>'}}});
+						/* ============ MOBILE FIX PACK ============ */
+@media(max-width:700px){
+  /* Canvas ko responsive banayein */
+  canvas{
+    width:100% !important;
+    max-width:100% !important;
+    height:auto !important;
+    min-height:180px;
+  }
+  
+  /* Hydraulic schematic SVG ko responsive karein */
+  #tab-hydraulic svg{
+    width:100% !important;
+    height:auto !important;
+    max-height:250px;
+  }
+  
+  /* Valve Sim canvas ko chhota karein mobile par */
+  #vsCv, #pnvCv{
+    height:280px !important;
+    min-height:280px;
+  }
+  
+  /* Grid ko force single column karein */
+  .grid{
+    grid-template-columns:1fr !important;
+    gap:8px !important;
+  }
+  
+  /* Card padding kam karein */
+  .card{
+    padding:8px !important;
+  }
+  
+  /* Wide cards mobile par full width */
+  .card.wide{
+    grid-column:1/-1 !important;
+  }
+  
+  /* Tables ko scrollable banayein */
+  .twrap{
+    max-height:250px !important;
+    overflow-x:auto !important;
+    -webkit-overflow-scrolling:touch;
+  }
+  
+  /* Table font chhota karein */
+  table{
+    font-size:11px !important;
+  }
+  
+  th, td{
+    padding:3px 4px !important;
+    font-size:11px !important;
+  }
+  
+  /* Input fields mobile par chhote */
+  input[type=number], select{
+    font-size:12px !important;
+    padding:4px 6px !important;
+  }
+  
+  /* Header compact karein */
+  header{
+    padding:6px 8px !important;
+  }
+  
+  .brand{
+    font-size:13px !important;
+  }
+  
+  .tag, .lazy, .sig{
+    font-size:9px !important;
+  }
+  
+  /* Tab buttons scrollable */
+  #tabs{
+    overflow-x:auto !important;
+    -webkit-overflow-scrolling:touch;
+  }
+  
+  .tabbtn{
+    padding:5px 8px !important;
+    font-size:11px !important;
+  }
+  
+  /* Main padding kam */
+  main{
+    padding:6px !important;
+  }
+  
+  /* Periodic table mobile par chhota */
+  #ptab{
+    grid-template-columns:repeat(9,1fr) !important;
+    gap:2px !important;
+  }
+  
+  .el{
+    font-size:7px !important;
+  }
+  
+  .el b{
+    font-size:10px !important;
+  }
+  
+  /* Calculator keypad */
+  #calKeypad{
+    grid-template-columns:repeat(5,1fr) !important;
+    gap:4px !important;
+  }
+  
+  #calKeypad .btn{
+    padding:7px 0 !important;
+    font-size:12px !important;
+  }
+  
+  /* Live gauges aur readouts ko wrap karein */
+  .row{
+    flex-wrap:wrap !important;
+    gap:5px !important;
+  }
+  
+  /* Pills ko chhota karein */
+  .pill{
+    font-size:10px !important;
+    padding:2px 6px !important;
+  }
+  
+  /* Big text */
+  .big{
+    font-size:18px !important;
+  }
+  
+  .mid{
+    font-size:14px !important;
+  }
+}
+
+/* Extra small phones ke liye */
+@media(max-width:400px){
+  #ptab{
+    grid-template-columns:repeat(8,1fr) !important;
+  }
+  
+  .brand{
+    font-size:12px !important;
+  }
+  
+  .tag{
+    display:none !important;
+  }
+  
+  canvas{
+    min-height:150px !important;
+  }
+}
 </style>
 <link rel="manifest" href="manifest.json">
 </head>
