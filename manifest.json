@@ -1,14 +1,21 @@
 {
-  "name": "IndusPro — Industrial Instrumentation Suite",
+  "name": "IndusPro",
   "short_name": "IndusPro",
-  "start_url": "./",
-  "scope": "./",
+  "description": "Industrial Instrumentation Engineering App",
+  "start_url": "/Induspro/",
   "display": "standalone",
-  "orientation": "any",
-  "background_color": "#0d141c",
-  "theme_color": "#00b4d8",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
   "icons": [
-    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
   ]
 }
