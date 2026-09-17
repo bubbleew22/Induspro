@@ -722,6 +722,182 @@ let owlTap=0;$('.brand').addEventListener('click',()=>{owlTap++;if(owlTap>=3){ow
     min-height:150px !important;
   }
 }
+						/* ============================================================
+   FINAL MOBILE OVERRIDE — Sab se aakhir mein
+   ============================================================ */
+@media(max-width:700px){
+
+  /* HEADER COMPACT (slider hide) */
+  header{
+    padding:4px 6px !important;
+    gap:4px !important;
+    flex-wrap:nowrap !important;
+    overflow:hidden !important;
+    min-height:0 !important;
+  }
+  header .brand{
+    font-size:12px !important;
+    flex:1 1 auto !important;
+    min-width:0 !important;
+    overflow:hidden !important;
+    white-space:nowrap !important;
+    text-overflow:ellipsis !important;
+  }
+  header .brand .tag,
+  header .brand .sig,
+  header .brand .lazy{
+    display:none !important;
+  }
+  header #tabs{
+    display:none !important;
+    visibility:hidden !important;
+    height:0 !important;
+    overflow:hidden !important;
+  }
+  header #themeBtn,
+  header #pdfBtn{
+    padding:4px 8px !important;
+    font-size:11px !important;
+    flex:0 0 auto !important;
+  }
+
+  /* MAIN PADDING */
+  main{
+    padding:6px !important;
+    padding-top:4px !important;
+  }
+
+  /* GRID SINGLE COLUMN */
+  .grid{
+    grid-template-columns:1fr !important;
+    gap:8px !important;
+  }
+
+  /* CARDS COMPACT */
+  .card{
+    padding:8px !important;
+    border-radius:8px !important;
+  }
+
+  /* VALVE SIM CANVAS */
+  #vsCv{
+    width:100% !important;
+    max-width:100% !important;
+    height:auto !important;
+    max-height:62vh !important;
+    min-height:200px !important;
+    display:block !important;
+  }
+
+  /* PNEUMATIC SIM CANVAS */
+  #pnvCv{
+    width:100% !important;
+    max-width:100% !important;
+    height:auto !important;
+    max-height:62vh !important;
+    min-height:200px !important;
+  }
+
+  /* VFD CANVAS */
+  #vfdCv{
+    width:100% !important;
+    max-width:100% !important;
+    height:auto !important;
+    max-height:55vh !important;
+  }
+
+  /* BAQI CANVAS */
+  canvas{
+    max-width:100% !important;
+  }
+
+  /* VALVE SIM CONTROLS COMPACT */
+  #tab-valvesim .row{
+    gap:4px !important;
+    margin-bottom:4px !important;
+  }
+  #tab-valvesim .btn{
+    padding:5px 9px !important;
+    font-size:11px !important;
+    flex:0 1 auto !important;
+  }
+  #tab-valvesim input[type=number]{
+    width:58px !important;
+    font-size:11px !important;
+    padding:3px 5px !important;
+  }
+  #tab-valvesim select{
+    font-size:11px !important;
+    padding:3px 5px !important;
+    max-width:130px !important;
+  }
+  #tab-valvesim label{
+    font-size:11px !important;
+    margin:3px 0 !important;
+  }
+  #tab-valvesim h3{
+    font-size:11.5px !important;
+    margin-bottom:5px !important;
+  }
+
+  /* TABLES SCROLL */
+  .twrap{
+    max-height:220px !important;
+    overflow-x:auto !important;
+    -webkit-overflow-scrolling:touch !important;
+  }
+  table{
+    font-size:11px !important;
+  }
+  th, td{
+    padding:3px 5px !important;
+    font-size:11px !important;
+  }
+
+  /* PILLS COMPACT */
+  .pill{
+    font-size:10px !important;
+    padding:2px 6px !important;
+    margin:1px !important;
+  }
+
+  /* BIG/MID TEXT */
+  .big{ font-size:16px !important; }
+  .mid{ font-size:13px !important; }
+  .mut, .mini{ font-size:11px !important; }
+
+  /* INPUTS */
+  input[type=number], select, input[type=text]{
+    font-size:12px !important;
+    padding:4px 6px !important;
+  }
+
+  /* PERIODIC TABLE */
+  #ptab{
+    grid-template-columns:repeat(9,1fr) !important;
+    gap:2px !important;
+  }
+  .el{ font-size:7px !important; }
+  .el b{ font-size:10px !important; }
+
+  /* CALCULATOR KEYPAD */
+  #calKeypad{
+    grid-template-columns:repeat(5,1fr) !important;
+    gap:4px !important;
+  }
+  #calKeypad .btn{
+    padding:7px 0 !important;
+    font-size:12px !important;
+  }
+}
+
+/* EXTRA SMALL PHONES (≤ 400px) */
+@media(max-width:400px){
+  header .brand{ font-size:11px !important; }
+  #ptab{ grid-template-columns:repeat(8,1fr) !important; }
+  .big{ font-size:15px !important; }
+  #vsCv, #pnvCv{ max-height:55vh !important; min-height:180px !important; }
+}
 </style>
 <link rel="manifest" href="manifest.json">
 </head>
@@ -1437,14 +1613,20 @@ const fmt=(n,d=2)=>(typeof n==='number'&&isFinite(n))?n.toFixed(d):'–';
 function csvOf(rows){return rows.map(r=>r.map(c=>'"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n')}
 function download(name,txt){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([txt],{type:'text/csv;charset=utf-8'}));a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{a.remove();URL.revokeObjectURL(a.href)},500)}
 function tbl(el,head,rows){el.innerHTML='<tr>'+head.map(h=>'<th>'+h+'</th>').join('')+'</tr>'+rows.map(r=>'<tr>'+r.map(c=>'<td>'+c+'</td>').join('')+'</tr>').join('')}
-function fitCv(cv){const r=cv.getBoundingClientRect(),d=Math.min(2,window.devicePixelRatio||1);
- const w=Math.max(50,Math.round(r.width));
- if(!cv.dataset.h)cv.dataset.h=cv.getAttribute('height')||150;
- const h=Math.max(40,+cv.dataset.h);
- const pw=Math.round(w*d),ph=Math.round(h*d);
- if(cv.width!==pw||cv.height!==ph){cv.width=pw;cv.height=ph}
- cv.style.height=h+'px';
- const x=cv.getContext('2d');x.setTransform(d,0,0,d,0,0);return[x,w,h]}
+function fitCv(cv){
+  const r=cv.getBoundingClientRect(),d=Math.min(2,window.devicePixelRatio||1);
+  const w=Math.max(50,Math.round(r.width));
+  if(!cv.dataset.h)cv.dataset.h=cv.getAttribute('height')||150;
+  const h=Math.max(40,+cv.dataset.h);
+  const pw=Math.round(w*d),ph=Math.round(h*d);
+  if(cv.width!==pw||cv.height!==ph){cv.width=pw;cv.height=ph}
+  cv.style.height=h+'px';
+  const x=cv.getContext('2d');
+  const designW = 660;
+  const scale = w < designW ? w / designW : 1;
+  x.setTransform(d*scale,0,0,d*scale,0,0);
+  return[x,w/scale,h/scale]
+}
 /* ============ THEME & TABS ============ */
 function setTheme(t){document.body.classList.toggle('light',t==='light');$('#themeBtn').textContent=t==='light'?'🌙':'☀️';LS.s('theme',t)}
 $('#themeBtn').onclick=()=>setTheme(document.body.classList.contains('light')?'dark':'light');setTheme(LS.g('theme','dark'));
@@ -1910,13 +2092,13 @@ function vsTick(){
  sb('#vsStB',pB_?'B: PRESSURE (RET)':bT?'B: →TANK':'B: HOLD',pB_?'warn':bT?'ok':'');
  $('#vsPath').textContent='Now: '+vsMsg(A,B,pA_,pB_,aT);
  vsDraw()}
-	function vsDraw(){
+function vsDraw(){
   const cv=$('#vsCv');if(!cv)return;
   
   // ============ MOBILE FIT FIX ============
   const isMobile = window.innerWidth <= 700;
-  const DESIGN_W = 660;  // Original design width
-  const DESIGN_H = 340;  // Original design height
+  const DESIGN_W = 660;
+  const DESIGN_H = 340;
   
   if(isMobile){
     const displayW = window.innerWidth - 24;
@@ -1932,9 +2114,7 @@ function vsTick(){
   // ============ MOBILE FIT END ============
   
   const[x,W,H]=fitCv(cv);x.clearRect(0,0,W,H);
-  // ... baaki code same rahega
- const cv=$('#vsCv');if(!cv)return;const[x,W,H]=fitCv(cv);x.clearRect(0,0,W,H);
- const cs=k=>getComputedStyle(document.body).getPropertyValue(k).trim();
+  const cs=k=>getComputedStyle(document.body).getPropertyValue(k).trim();
  const cw=cs('--line')||'#24384c',cp=cs('--panel')||'#131e29',ct=cs('--txt')||'#eee',cm=cs('--mut')||'#889';
  const ca='#00e5c3',co='#f5a623',cr='#ff5c5c',cg='#2ecc71',cd='#3d5a75';
  const f=VST.f||{},c=VST.cfg,cen=VST.center;
@@ -3102,6 +3282,121 @@ vzTick();
   }, 500);
   
   // Hint message dikhayein (sirf pehli baar)
+  if(!localStorage.getItem('indus_swipe_hint')){
+    setTimeout(function(){
+      var hint = document.createElement('div');
+      hint.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);' +
+        'background:rgba(0,0,0,0.85);color:#fff;padding:16px 24px;border-radius:12px;' +
+        'z-index:1000;font-size:14px;text-align:center;backdrop-filter:blur(10px);' +
+        'border:1px solid var(--acc);max-width:80%;';
+      hint.innerHTML = '👈 Swipe left/right to change tabs 👉<br><span style="font-size:11px;opacity:0.7">Tap anywhere to dismiss</span>';
+      hint.onclick = function(){ hint.remove(); };
+      document.body.appendChild(hint);
+      localStorage.setItem('indus_swipe_hint', '1');
+      setTimeout(function(){ if(hint.parentNode) hint.remove(); }, 5000);
+    }, 1500);
+  }
+})();
+</script>
+<script>
+/* ============ SWIPE GESTURE NAVIGATION ============ */
+(function(){
+  var touchStartX = 0;
+  var touchStartY = 0;
+  var touchEndX = 0;
+  var touchEndY = 0;
+  var minSwipe = 50;
+  
+  var tabIds = [
+    'instruments','motors','mform','gen','vfd','wires','swg','battery',
+    'periodic','bearings','breakers','trafo','pneumatic','pneusim',
+    'hydraulic','valvesim','sensors','convert','network','vibro',
+    'calc','rtd','bonus'
+  ];
+  
+  function getCurrentIndex(){
+    var active = document.querySelector('.tabbtn.active');
+    if(!active) return 0;
+    return tabIds.indexOf(active.dataset.id);
+  }
+  
+  function goToTab(index){
+    if(index < 0) index = 0;
+    if(index >= tabIds.length) index = tabIds.length - 1;
+    var id = tabIds[index];
+    if(typeof activateTab === 'function'){
+      activateTab(id);
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+  }
+  
+  document.addEventListener('touchstart', function(e){
+    if(e.target.closest('header')) return;
+    if(e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'BUTTON') return;
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+  }, {passive:true});
+  
+  document.addEventListener('touchend', function(e){
+    if(e.target.closest('header')) return;
+    if(e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'BUTTON') return;
+    
+    touchEndX = e.changedTouches[0].screenX;
+    touchEndY = e.changedTouches[0].screenY;
+    
+    var dx = touchEndX - touchStartX;
+    var dy = touchEndY - touchStartY;
+    
+    if(Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > minSwipe){
+      var currentIndex = getCurrentIndex();
+      if(dx < 0){
+        goToTab(currentIndex + 1);
+      } else {
+        goToTab(currentIndex - 1);
+      }
+    }
+  }, {passive:true});
+  
+  /* Dots indicator */
+  var style = document.createElement('style');
+  style.textContent = 
+    '@media(max-width:700px){' +
+    '#swipeIndicator{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);' +
+    'display:flex;gap:4px;z-index:100;background:rgba(0,0,0,0.5);padding:6px 10px;' +
+    'border-radius:20px;backdrop-filter:blur(8px);}' +
+    '#swipeIndicator .dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.4);' +
+    'transition:all 0.3s;}' +
+    '#swipeIndicator .dot.active{background:var(--acc);width:20px;border-radius:3px;}' +
+    '}' +
+    '@media(min-width:701px){#swipeIndicator{display:none;}}';
+  document.head.appendChild(style);
+  
+  var indicator = document.createElement('div');
+  indicator.id = 'swipeIndicator';
+  tabIds.forEach(function(id, i){
+    var dot = document.createElement('div');
+    dot.className = 'dot';
+    dot.dataset.index = i;
+    indicator.appendChild(dot);
+  });
+  document.body.appendChild(indicator);
+  
+  var origActivateTab = window.activateTab;
+  window.activateTab = function(id){
+    if(origActivateTab) origActivateTab(id);
+    var idx = tabIds.indexOf(id);
+    document.querySelectorAll('#swipeIndicator .dot').forEach(function(d){
+      d.classList.toggle('active', +d.dataset.index === idx);
+    });
+  };
+  
+  setTimeout(function(){
+    var idx = getCurrentIndex();
+    var dot = document.querySelector('#swipeIndicator .dot[data-index="'+idx+'"]');
+    if(dot) dot.classList.add('active');
+  }, 500);
+  
+  /* Hint dikhayein sirf pehli baar */
   if(!localStorage.getItem('indus_swipe_hint')){
     setTimeout(function(){
       var hint = document.createElement('div');
