@@ -321,7 +321,7 @@ html{overflow-y:scroll;scrollbar-gutter:stable}
 </div></section>
 
 <!-- ================= 9. HYDRAULICS ================= -->
-<section id="tab-hydraulic" class="tab"><div class="grid">
+<section id="tab-hydraulic" class="tab" style="display:none!important"><div class="grid">
   <div class="card"><h3>4/3 Directional Valve — Ports & Spools</h3>
     <table><tr><th>Port</th><th>Meaning</th></tr>
     <tr><td><b>P</b></td><td>Pressure (from pump)</td></tr><tr><td><b>T</b></td><td>Tank (return)</td></tr>
@@ -1812,7 +1812,7 @@ css.textContent='html,body{overscroll-behavior:none;-webkit-tap-highlight-color:
 '@media print{header,.btn,.tab:not(.active){display:none!important}body,body *{background:#fff!important;color:#000!important;border-color:#999!important;box-shadow:none!important}canvas{display:none!important}}';
 document.head.appendChild(css);
 /* ---------- 3. TAB BUTTONS ---------- */
-window.IP_TABS=[['instruments','🎚️ Instruments'],['motors','⚡ Motors'],['mform','🧲 Motor Fx'],['gen','🔄 Generator'],['vfd','🕹️ VFD'],['wires','🔌 Wires'],['swg','🧵 SWG'],['battery','🔋 Battery'],['periodic','🧪 Periodic'],['bearings','⚙️ Bearings'],['breakers','🛡️ Breakers'],['trafo','🧰 Transformer'],['pneumatic','💨 Pneumatics'],['pneusim','🎏 Pneu Sim'],['hydraulic','🛢️ Hydraulics'],['valvesim','🎛️ Valve Sim'],['sensors','🛰️ Sensors'],['convert','🔢 Converters'],['network','🌐 Network'],['vibro','📉 Vibrometer'],['calc','🧮 HyperPro'],['rtd','🌡️ RTD/TC'],['bonus','🦉 Bonus Lab']];
+window.IP_TABS=[['instruments','🎚️ Instruments'],['motors','⚡ Motors'],['mform','🧲 Motor Fx'],['gen','🔄 Generator'],['vfd','🕹️ VFD'],['wires','🔌 Wires'],['swg','🧵 SWG'],['battery','🔋 Battery'],['periodic','🧪 Periodic'],['bearings','⚙️ Bearings'],['breakers','🛡️ Breakers'],['trafo','🧰 Transformer'],['pneumatic','💨 Pneumatics'],['pneusim','🎏 Pneu Sim'],['valvesim','🎛️ Valve Sim'],['sensors','🛰️ Sensors'],['convert','🔢 Converters'],['network','🌐 Network'],['vibro','📉 Vibrometer'],['calc','🧮 HyperPro'],['rtd','🌡️ RTD/TC'],['bonus','🦉 Bonus Lab']];
 window.ipBuild=function(){var t=q('#tabs');if(!t)return;t.innerHTML='';
  window.IP_TABS.forEach(function(a){if(!q('#tab-'+a[0]))return;var b=document.createElement('button');
   b.className='tabbtn';b.textContent=a[1];b.dataset.id=a[0];b.onclick=function(){activateTab(a[0])};t.appendChild(b)})};
@@ -2388,7 +2388,7 @@ vzTick();
 (function(){
   var touchStartX = 0, touchStartY = 0, touchEndX = 0, touchEndY = 0;
   var minSwipe = 50;
-  var tabIds = ['instruments','motors','mform','gen','vfd','wires','swg','battery','periodic','bearings','breakers','trafo','pneumatic','pneusim','hydraulic','valvesim','sensors','convert','network','vibro','calc','rtd','bonus'];
+  var tabIds = ['instruments','motors','mform','gen','vfd','wires','swg','battery','periodic','bearings','breakers','trafo','pneumatic','pneusim','valvesim','sensors','convert','network','vibro','calc','rtd','bonus'];
   function getCurrentIndex(){
     var active = document.querySelector('.tabbtn.active');
     if(!active) return 0;
