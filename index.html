@@ -1622,10 +1622,11 @@ function fitCv(cv){
   if(cv.width!==pw||cv.height!==ph){cv.width=pw;cv.height=ph}
   cv.style.height=h+'px';
   const x=cv.getContext('2d');
+  // Design width 660px hai — agar screen chhoti hai toh scale karein
   const designW = 660;
   const scale = w < designW ? w / designW : 1;
   x.setTransform(d*scale,0,0,d*scale,0,0);
-  return[x,w/scale,h/scale]
+  return[x, w/scale, h/scale];
 }
 /* ============ THEME & TABS ============ */
 function setTheme(t){document.body.classList.toggle('light',t==='light');$('#themeBtn').textContent=t==='light'?'🌙':'☀️';LS.s('theme',t)}
