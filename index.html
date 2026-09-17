@@ -490,6 +490,238 @@ let owlTap=0;$('.brand').addEventListener('click',()=>{owlTap++;if(owlTap>=3){ow
     min-height:150px !important;
   }
 }
+			/* ============================================================
+   FINAL MOBILE OVERRIDE — SAB SE AAZAAD (last rule wins)
+   Yeh block saare purane @media rules ko override kar dega.
+   ============================================================ */
+@media(max-width:700px){
+
+  /* ---------- HEADER COMPACT (slider hide) ---------- */
+  header{
+    padding:4px 6px !important;
+    gap:4px !important;
+    flex-wrap:nowrap !important;
+    overflow:hidden !important;
+    min-height:0 !important;
+  }
+  header .brand{
+    font-size:12px !important;
+    flex:1 1 auto !important;
+    min-width:0 !important;
+    overflow:hidden !important;
+    white-space:nowrap !important;
+    text-overflow:ellipsis !important;
+  }
+  header .brand .tag,
+  header .brand .sig,
+  header .brand .lazy{
+    display:none !important;
+  }
+  header #tabs{
+    display:none !important;
+    visibility:hidden !important;
+    height:0 !important;
+    overflow:hidden !important;
+  }
+  header #themeBtn,
+  header #pdfBtn{
+    padding:4px 8px !important;
+    font-size:11px !important;
+    flex:0 0 auto !important;
+  }
+
+  /* ---------- MAIN PADDING ---------- */
+  main{
+    padding:6px !important;
+    padding-top:4px !important;
+  }
+
+  /* ---------- GRID SINGLE COLUMN ---------- */
+  .grid{
+    grid-template-columns:1fr !important;
+    gap:8px !important;
+  }
+
+  /* ---------- CARDS COMPACT ---------- */
+  .card{
+    padding:8px !important;
+    border-radius:8px !important;
+  }
+
+  /* ---------- VALVE SIM CANVAS (sab se ahem) ---------- */
+  #vsCv{
+    width:100% !important;
+    max-width:100% !important;
+    height:auto !important;
+    max-height:62vh !important;
+    min-height:200px !important;
+    display:block !important;
+  }
+
+  /* ---------- PNEUMATIC SIM CANVAS ---------- */
+  #pnvCv{
+    width:100% !important;
+    max-width:100% !important;
+    height:auto !important;
+    max-height:62vh !important;
+    min-height:200px !important;
+  }
+
+  /* ---------- VFD CANVAS ---------- */
+  #vfdCv{
+    width:100% !important;
+    max-width:100% !important;
+    height:auto !important;
+    max-height:55vh !important;
+  }
+
+  /* ---------- BAQI CANVAS ---------- */
+  canvas{
+    max-width:100% !important;
+  }
+
+  /* ---------- VALVE SIM CONTROLS COMPACT ---------- */
+  #tab-valvesim .row{
+    gap:4px !important;
+    margin-bottom:4px !important;
+  }
+  #tab-valvesim .btn{
+    padding:5px 9px !important;
+    font-size:11px !important;
+    flex:0 1 auto !important;
+  }
+  #tab-valvesim input[type=number]{
+    width:58px !important;
+    font-size:11px !important;
+    padding:3px 5px !important;
+  }
+  #tab-valvesim select{
+    font-size:11px !important;
+    padding:3px 5px !important;
+    max-width:130px !important;
+  }
+  #tab-valvesim label{
+    font-size:11px !important;
+    margin:3px 0 !important;
+  }
+  #tab-valvesim h3{
+    font-size:11.5px !important;
+    margin-bottom:5px !important;
+  }
+
+  /* ---------- TABLES SCROLL ---------- */
+  .twrap{
+    max-height:220px !important;
+    overflow-x:auto !important;
+    -webkit-overflow-scrolling:touch !important;
+  }
+  table{
+    font-size:11px !important;
+  }
+  th, td{
+    padding:3px 5px !important;
+    font-size:11px !important;
+  }
+
+  /* ---------- PILLS COMPACT ---------- */
+  .pill{
+    font-size:10px !important;
+    padding:2px 6px !important;
+    margin:1px !important;
+  }
+
+  /* ---------- BIG/MID TEXT ---------- */
+  .big{ font-size:16px !important; }
+  .mid{ font-size:13px !important; }
+  .mut, .mini{ font-size:11px !important; }
+
+  /* ---------- INPUTS ---------- */
+  input[type=number], select, input[type=text]{
+    font-size:12px !important;
+    padding:4px 6px !important;
+  }
+
+  /* ---------- PERIODIC TABLE ---------- */
+  #ptab{
+    grid-template-columns:repeat(9,1fr) !important;
+    gap:2px !important;
+  }
+  .el{ font-size:7px !important; }
+  .el b{ font-size:10px !important; }
+
+  /* ---------- CALCULATOR KEYPAD ---------- */
+  #calKeypad{
+    grid-template-columns:repeat(5,1fr) !important;
+    gap:4px !important;
+  }
+  #calKeypad .btn{
+    padding:7px 0 !important;
+    font-size:12px !important;
+  }
+}
+
+/* ---------- EXTRA SMALL PHONES (≤ 400px) ---------- */
+@media(max-width:400px){
+  header .brand{ font-size:11px !important; }
+  #ptab{ grid-template-columns:repeat(8,1fr) !important; }
+  .big{ font-size:15px !important; }
+  #vsCv, #pnvCv{ max-height:55vh !important; min-height:180px !important; }
+}
+						/* ============================================================
+   CANVAS MOBILE FIT — CSS se hi sab control
+   JavaScript ko touch kiye baghair, sirf CSS se canvas fit.
+   ============================================================ */
+@media(max-width:700px){
+
+  /* ---------- SAARE CANVAS KO RESPONSIVE BANAO ---------- */
+  canvas{
+    width:100% !important;
+    max-width:100% !important;
+    height:auto !important;
+    display:block !important;
+    box-sizing:border-box !important;
+  }
+
+  /* ---------- VALVE SIM CANVAS ---------- */
+  #vsCv{
+    width:100% !important;
+    max-width:100% !important;
+    height:auto !important;
+    max-height:60vh !important;
+    min-height:200px !important;
+  }
+
+  /* ---------- PNEUMATIC SIM CANVAS ---------- */
+  #pnvCv{
+    width:100% !important;
+    max-width:100% !important;
+    height:auto !important;
+    max-height:60vh !important;
+    min-height:200px !important;
+  }
+
+  /* ---------- VFD CANVAS ---------- */
+  #vfdCv{
+    width:100% !important;
+    max-width:100% !important;
+    height:auto !important;
+    max-height:50vh !important;
+  }
+
+  /* ---------- HYDRAULIC SVG ---------- */
+  #tab-hydraulic svg{
+    width:100% !important;
+    height:auto !important;
+    max-height:50vh !important;
+  }
+
+  /* ---------- BAQI CANVAS KO BHI LIMIT ---------- */
+  #insCv, #pidCv, #motCv, #vWave, #vSpec, #vTrend,
+  #vzCv, #vzSpC, #vzTrC, #snCv1, #snCv2{
+    max-height:45vh !important;
+    min-height:150px !important;
+  }
+}
 </style>
 <link rel="manifest" href="manifest.json">
 </head>
@@ -1678,7 +1910,29 @@ function vsTick(){
  sb('#vsStB',pB_?'B: PRESSURE (RET)':bT?'B: →TANK':'B: HOLD',pB_?'warn':bT?'ok':'');
  $('#vsPath').textContent='Now: '+vsMsg(A,B,pA_,pB_,aT);
  vsDraw()}
-function vsDraw(){
+	function vsDraw(){
+  const cv=$('#vsCv');if(!cv)return;
+  
+  // ============ MOBILE FIT FIX ============
+  const isMobile = window.innerWidth <= 700;
+  const DESIGN_W = 660;  // Original design width
+  const DESIGN_H = 340;  // Original design height
+  
+  if(isMobile){
+    const displayW = window.innerWidth - 24;
+    const scale = displayW / DESIGN_W;
+    const displayH = Math.round(DESIGN_H * scale);
+    cv.style.width = displayW + 'px';
+    cv.style.height = displayH + 'px';
+    cv.dataset.h = displayH;
+  } else {
+    cv.style.width = '';
+    cv.style.height = '';
+  }
+  // ============ MOBILE FIT END ============
+  
+  const[x,W,H]=fitCv(cv);x.clearRect(0,0,W,H);
+  // ... baaki code same rahega
  const cv=$('#vsCv');if(!cv)return;const[x,W,H]=fitCv(cv);x.clearRect(0,0,W,H);
  const cs=k=>getComputedStyle(document.body).getPropertyValue(k).trim();
  const cw=cs('--line')||'#24384c',cp=cs('--panel')||'#131e29',ct=cs('--txt')||'#eee',cm=cs('--mut')||'#889';
@@ -2738,5 +2992,131 @@ vzTick();
 })();
 </script>
 <!-- ============ FIX PACK 2 END ============ -->
+	<script>
+/* ============ SWIPE GESTURE NAVIGATION ============ */
+(function(){
+  var touchStartX = 0;
+  var touchStartY = 0;
+  var touchEndX = 0;
+  var touchEndY = 0;
+  var minSwipe = 50;
+  
+  // Saare tab IDs ki list (jo aapke IP_TABS mein hain)
+  var tabIds = [
+    'instruments','motors','mform','gen','vfd','wires','swg','battery',
+    'periodic','bearings','breakers','trafo','pneumatic','pneusim',
+    'hydraulic','valvesim','sensors','convert','network','vibro',
+    'calc','rtd','bonus'
+  ];
+  
+  function getCurrentIndex(){
+    var active = document.querySelector('.tabbtn.active');
+    if(!active) return 0;
+    return tabIds.indexOf(active.dataset.id);
+  }
+  
+  function goToTab(index){
+    if(index < 0) index = 0;
+    if(index >= tabIds.length) index = tabIds.length - 1;
+    var id = tabIds[index];
+    if(typeof activateTab === 'function'){
+      activateTab(id);
+      // Page ko top par scroll karein
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+  }
+  
+  document.addEventListener('touchstart', function(e){
+    // Sirf tab content area par (header ke neeche)
+    if(e.target.closest('header')) return;
+    // Agar canvas ya input par touch hai toh ignore
+    if(e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'BUTTON') return;
+    
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+  }, {passive:true});
+  
+  document.addEventListener('touchend', function(e){
+    if(e.target.closest('header')) return;
+    if(e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT' || e.target.tagName === 'BUTTON') return;
+    
+    touchEndX = e.changedTouches[0].screenX;
+    touchEndY = e.changedTouches[0].screenY;
+    
+    var dx = touchEndX - touchStartX;
+    var dy = touchEndY - touchStartY;
+    
+    // Sirf horizontal swipe detect karein (vertical scroll ignore)
+    if(Math.abs(dx) > Math.abs(dy) && Math.abs(dx) > minSwipe){
+      var currentIndex = getCurrentIndex();
+      if(dx < 0){
+        // Left swipe → next tab
+        goToTab(currentIndex + 1);
+      } else {
+        // Right swipe → previous tab
+        goToTab(currentIndex - 1);
+      }
+    }
+  }, {passive:true});
+  
+  // Page indicators (dots) add karein
+  var style = document.createElement('style');
+  style.textContent = 
+    '@media(max-width:700px){' +
+    '#swipeIndicator{position:fixed;bottom:12px;left:50%;transform:translateX(-50%);' +
+    'display:flex;gap:4px;z-index:100;background:rgba(0,0,0,0.5);padding:6px 10px;' +
+    'border-radius:20px;backdrop-filter:blur(8px);}' +
+    '#swipeIndicator .dot{width:6px;height:6px;border-radius:50%;background:rgba(255,255,255,0.4);' +
+    'transition:all 0.3s;}' +
+    '#swipeIndicator .dot.active{background:var(--acc);width:20px;border-radius:3px;}' +
+    '}' +
+    '@media(min-width:701px){#swipeIndicator{display:none;}}';
+  document.head.appendChild(style);
+  
+  // Indicator element banayein
+  var indicator = document.createElement('div');
+  indicator.id = 'swipeIndicator';
+  tabIds.forEach(function(id, i){
+    var dot = document.createElement('div');
+    dot.className = 'dot';
+    dot.dataset.index = i;
+    indicator.appendChild(dot);
+  });
+  document.body.appendChild(indicator);
+  
+  // Indicator update karein jab tab change ho
+  var origActivateTab = window.activateTab;
+  window.activateTab = function(id){
+    if(origActivateTab) origActivateTab(id);
+    var idx = tabIds.indexOf(id);
+    document.querySelectorAll('#swipeIndicator .dot').forEach(function(d){
+      d.classList.toggle('active', +d.dataset.index === idx);
+    });
+  };
+  
+  // Initial indicator set karein
+  setTimeout(function(){
+    var idx = getCurrentIndex();
+    var dot = document.querySelector('#swipeIndicator .dot[data-index="'+idx+'"]');
+    if(dot) dot.classList.add('active');
+  }, 500);
+  
+  // Hint message dikhayein (sirf pehli baar)
+  if(!localStorage.getItem('indus_swipe_hint')){
+    setTimeout(function(){
+      var hint = document.createElement('div');
+      hint.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);' +
+        'background:rgba(0,0,0,0.85);color:#fff;padding:16px 24px;border-radius:12px;' +
+        'z-index:1000;font-size:14px;text-align:center;backdrop-filter:blur(10px);' +
+        'border:1px solid var(--acc);max-width:80%;';
+      hint.innerHTML = '👈 Swipe left/right to change tabs 👉<br><span style="font-size:11px;opacity:0.7">Tap anywhere to dismiss</span>';
+      hint.onclick = function(){ hint.remove(); };
+      document.body.appendChild(hint);
+      localStorage.setItem('indus_swipe_hint', '1');
+      setTimeout(function(){ if(hint.parentNode) hint.remove(); }, 5000);
+    }, 1500);
+  }
+})();
+</script>
 </body>
 </html>
