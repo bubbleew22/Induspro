@@ -22,16 +22,30 @@ jobs:
           distribution: temurin
           java-version: 17
 
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android packages
+        run: |
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
       - name: Install Bubblewrap
         run: npm install -g @bubblewrap/cli
 
       - name: Configure Bubblewrap
         run: |
           mkdir -p ~/.bubblewrap
-          echo '{"jdkPath":"'$JAVA_HOME'","androidSdkPath":"/usr/local/lib/android/sdk"}' > ~/.bubblewrap/config.json
+          cat > ~/.bubblewrap/config.json <<EOF
+          {
+            "jdkPath": "${JAVA_HOME}",
+            "androidSdkPath": "${ANDROID_HOME}"
+          }
+          EOF
 
       - name: Initialize TWA
         run: |
+          rm -rf app
           bubblewrap init \
             --manifest=https://bubbleew22.github.io/Induspro/manifest.json \
             --directory=app
