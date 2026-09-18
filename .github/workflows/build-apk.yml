@@ -1,1 +1,78 @@
+name: Build IndusPro APK
 
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android packages
+        run: |
+          yes | sdkmanager --licenses || true
+          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Install Bubblewrap
+        run: npm install -g @bubblewrap/cli
+
+      - name: Configure Bubblewrap
+        run: |
+          mkdir -p ~/.bubblewrap
+          cat > ~/.bubblewrap/config.json <<EOF
+          {
+            "jdkPath": "${JAVA_HOME}",
+            "androidSdkPath": "${ANDROID_HOME}"
+          }
+          EOF
+
+      - name: Check PWA files
+        run: |
+          curl -fLsS https://bubbleew22.github.io/Induspro/manifest.json
+          curl -fLsS https://bubbleew22.github.io/Induspro/index.html > /dev/null
+          curl -fLsS https://bubbleew22.github.io/Induspro/icon-192.png > /dev/null
+          curl -fLsS https://bubbleew22.github.io/Induspro/icon-512.png > /dev/null
+
+      - name: Clean old app folder
+        run: rm -rf app
+
+      - name: Initialize TWA
+        run: |
+          bubblewrap init \
+            --manifest=https://bubbleew22.github.io/Induspro/manifest.json \
+            --directory=app
+
+      - name: Build APK
+        working-directory: app
+        run: bubblewrap build
+
+      - name: Find generated files
+        if: always()
+        run: find app -type f \( -name "*.apk" -o -name "*.aab" \) -print
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: IndusPro-APK
+          path: |
+            app/**/*.apk
+            app/**/*.aab
+          if-no-files-found: error
