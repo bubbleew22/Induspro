@@ -91,7 +91,7 @@ html{overflow-y:scroll;scrollbar-gutter:stable}
   #calKeypad{grid-template-columns:repeat(5,1fr) !important;gap:4px !important}
   #calKeypad .btn{padding:7px 0 !important;font-size:12px !important}
   canvas{max-width:100% !important}
-  #vsCv,#pnvCv{width:100% !important;max-width:100% !important;height:auto !important;max-height:62vh !important;min-height:200px !important}
+  #pnvCv{width:100% !important;max-width:100% !important;height:auto !important;max-height:62vh !important;min-height:200px !important}
   #vfdCv{width:100% !important;max-width:100% !important;height:auto !important;max-height:55vh !important}
   .tabbtn{padding:5px 8px !important;font-size:11px !important}
 }
@@ -100,7 +100,7 @@ html{overflow-y:scroll;scrollbar-gutter:stable}
   header .brand{font-size:11px !important}
   #ptab{grid-template-columns:repeat(8,1fr) !important}
   .big{font-size:15px !important}
-  #vsCv,#pnvCv{max-height:55vh !important;min-height:180px !important}
+  #pnvCv{max-height:55vh !important;min-height:180px !important}
 }
 </style>
 <link rel="manifest" href="manifest.json">
@@ -391,270 +391,7 @@ html{overflow-y:scroll;scrollbar-gutter:stable}
     <div class="mut">PV = Lo + (Hi−Lo)×(mA−4)/16<br>Burnout NAMUR NE43: 21 mA upscale / 3.6 mA downscale fault.</div></div>
 </div></section>
 
-<!-- ================= 12. HYDRAULIC VALVE SIM ================= -->
-<section id="tab-valvesim" class="tab"><div class="grid">
-  <div class="card wide"><h3>Directional / Check Valve — Live Circuit Simulator</h3>
-    <div class="row">Valve <select id="vsCfg">
-      <option value="chk">Check Valve (1-way)</option>
-      <option value="22nc">2/2 NC (normally closed)</option>
-      <option value="22no">2/2 NO (normally open)</option>
-      <option value="32nc">3/2 NC + single-acting cyl</option>
-      <option value="32no">3/2 NO + single-acting cyl</option>
-      <option value="42">4/2 (spring return)</option>
-      <option value="43" selected>4/3 (a / b / center)</option></select>
-    Center <select id="vsCenter"><option value="closed">Closed</option><option value="tandem">Tandem</option><option value="open">Open</option><option value="float">Float</option></select>
-    Actuation <select id="vsAct"><option value="sol">Solenoid</option><option value="man">Manual (hold)</option><option value="pil">Pilot operated</option></select></div>
-    <div class="row">
-      <button class="btn acc" id="vsPump">▶ Pump</button>
-	  <button class="btn danger" id="vsReset">⟲ Reset</button>
-      <button class="btn" id="vsM1">◀ hold a</button><button class="btn" id="vsM2">hold b ▶</button>
-      <button class="btn" id="vsY1">Y1 a</button><button class="btn" id="vsY2">Y2 b</button>
-      <span class="mut">Pilot shift ≥ 25 bar</span></div>
-    <div class="row">Relief <input id="vsRelief" type="number" value="150" style="width:80px"> bar · Pump Q <input id="vsQ" type="number" value="40" style="width:70px"> L/min · Load <input id="vsLoad" type="number" value="35" style="width:70px"> bar</div>
-    <canvas id="vsCv" height="340" style="margin-top:8px"></canvas>
-    <div class="mut">🟠 = pressurized/flow · 🔴 dashes = over relief (heat!) · 🔵 = tank return · Cylinder chambers pressure ke saath tint hote hain.</div></div>
-  <div class="card"><h3>Live Gauges</h3>
-    <div class="card"><h3>Port Status — LIVE</h3>
-    <div class="row" style="gap:6px">
-      <span id="vsStP" class="pill">P: –</span><span id="vsStT" class="pill">T: –</span>
-      <span id="vsStA" class="pill">A: –</span><span id="vsStB" class="pill">B: –</span></div>
-    <div id="vsPath" class="mut" style="margin-top:6px">–</div>
-    <div class="mut" style="margin-top:4px">🟠 Pressure line · 🔵 Tank return · ⚪ Blocked/Hold<br>Symbol ke andar arrows = flow path, glow = active position.</div></div>
-    <table><tr><td>System P</td><td><b id="vgSys">0</b> bar</td></tr>
-    <tr><td>Pilot P</td><td><b id="vgPil">0</b> bar</td></tr>
-    <tr><td>Port A</td><td><b id="vgA">0</b> bar</td></tr>
-    <tr><td>Port B</td><td><b id="vgB">0</b> bar</td></tr>
-    <tr><td>Flow</td><td><b id="vgQ">0</b> L/min</td></tr></table>
-    <label style="margin-top:6px">Stroke: <b id="vgPos">50%</b></label>
-    <div style="height:14px;background:var(--panel);border-radius:7px;overflow:hidden"><div id="vgPosBar" style="height:100%;width:50%;background:var(--acc)"></div></div>
-    <div id="vgSt" style="margin-top:8px"></div></div>
-  <div class="card"><h3>Event Log <button class="btn" id="vsCsv">⬇ CSV</button> <button class="btn danger" id="vsClr">Clear</button></h3>
-    <div class="twrap" style="max-height:220px"><table id="vsLogTbl"></table></div></div>
-  <div class="card"><h3>Pilot Operated Valves — Field Notes</h3><div class="mut">
-    • <b>Internal pilot:</b> pilot oil main P line se (X plug) · <b>External pilot:</b> alag line se<br>
-    • Min pilot pressure typically <b>25–35 bar</b> (spring force beat karna hota hai)<br>
-    • <b>PO check valve:</b> pilot ratio 3:1 typical — 300 bar load → ~100 bar pilot chahiye<br>
-    • Pilot valve chhota hota hai, main spool pressure + pilot se shift hota hai<br>
-    • Vent-type PRV: remote vent port se pressure adjust / pump unload<br>
-    • Dead-head (closed center): pump ka sara oil relief se jata hai → oil garam → cooler zaroori</div></div>
-  <div class="card wide"><h3>Valve Types Reference (Hydraulic)</h3><table>
-    <tr><th>Valve</th><th>Function</th><th>Use</th></tr>
-    <tr><td>Check (1-way)</td><td>ek direction free, reverse blocked</td><td>pump protection</td></tr>
-    <tr><td>Pilot-operated check</td><td>pilot se reverse open</td><td>load holding (ram, crane)</td></tr>
-    <tr><td>2/2 NC/NO</td><td>ON/OFF block</td><td>isolation, vent</td></tr>
-    <tr><td>3/2</td><td>pressurize / exhaust</td><td>single-acting cylinder</td></tr>
-    <tr><td>4/2</td><td>P→A / P→B alternate</td><td>2-position actuator</td></tr>
-    <tr><td>4/3 closed</td><td>sab blocked</td><td>load hold ⚠ pump dead-head</td></tr>
-    <tr><td>4/3 tandem</td><td>P→T, A/B blocked</td><td>hold + pump unload ✓</td></tr>
-    <tr><td>4/3 open</td><td>sab → T</td><td>float, low hold</td></tr>
-    <tr><td>4/3 float</td><td>P blocked, A/B→T</td><td>coast ⚠ dead-head</td></tr>
-    <tr><td>PRV</td><td>set pressure par open</td><td>safety — har circuit mein</td></tr>
-    <tr><td>Sequence</td><td>set P ke baad next branch</td><td>clamp → press order</td></tr>
-    <tr><td>Counterbalance</td><td>back-pressure + pilot open</td><td>vertical load</td></tr>
-    <tr><td>Reducing</td><td>branch pressure kam</td><td>low-P circuit</td></tr>
-    <tr><td>Flow control</td><td>Q adjust (needle/comp.)</td><td>speed control</td></tr>
-    <tr><td>Shuttle</td><td>higher of 2 inputs pass</td><td>OR logic</td></tr></table></div>
-</div></section>
-
-<!-- ================= 13. MOTOR FORMULAS ================= -->
-<section id="tab-mform" class="tab"><div class="grid">
-  <div class="card"><h3>Winding Turns Calculator</h3>
-    <div class="row">Phase V <input id="mfV" type="number" value="230" style="width:80px"> f <input id="mfF" type="number" value="50" style="width:60px"> Hz</div>
-    <div class="row">Bm <input id="mfB" type="number" value="0.8" step="0.05" style="width:70px"> T · Pole area A <input id="mfA" type="number" value="80" step="1" style="width:70px"> cm²</div>
-    <div class="row">Kw <input id="mfKw" type="number" value="0.955" step="0.005" style="width:70px"> · Parallel paths <input id="mfPar" type="number" value="1" style="width:60px"></div>
-    <button class="btn acc" id="mfGo">Calculate</button><div id="mfOut"></div>
-    <div class="mut">E = 4.44·f·N·Φ·Kw → <b>N = V / (4.44·f·Bm·A·Kw)</b> · Φ = Bm×A (Wb) · Kw ≈ 0.955</div></div>
-  <div class="card"><h3>Speed &amp; Poles (RPM Change)</h3>
-    <div class="row">f <input id="mpF" type="number" value="50" style="width:60px"> Hz · Poles <select id="mpP" style="width:70px"><option>2</option><option selected>4</option><option>6</option><option>8</option><option>10</option><option>12</option></select> · Slip <input id="mpSl" type="number" value="3.5" step="0.1" style="width:60px"> %</div>
-    <div id="mpOut"></div>
-    <div class="row">Target RPM <input id="mpT" type="number" value="750" style="width:80px"> <button class="btn" id="mpGo">Poles needed</button></div>
-    <div id="mpOut2"></div>
-    <div class="mut">Ns = 120·f / P · N = Ns(1−s) · Dahlander 2-speed: 2×P se half speed · VFD se continuous speed.</div></div>
-  <div class="card"><h3>Torque / Power</h3>
-    <div class="row">kW <input id="mtKw" type="number" value="7.5" style="width:80px"> RPM <input id="mtN" type="number" value="1450" style="width:80px"> <button class="btn acc" id="mtGo">→</button></div>
-    <div id="mtOut"></div>
-    <div class="mut">T(N·m) = 9550·kW / N · T(lb·ft) = 5252·HP / N · HP = kW/0.7457</div></div>
-  <div class="card"><h3>Rewind: Voltage / Frequency Change</h3>
-    <div class="row">Old V <input id="rwV1" type="number" value="400" style="width:70px"> f <input id="rwF1" type="number" value="50" style="width:60px"> · New V <input id="rwV2" type="number" value="230" style="width:70px"> f <input id="rwF2" type="number" value="50" style="width:60px"></div>
-    <div class="row">Old turns/phase <input id="rwN1" type="number" value="120" style="width:80px"> · Old wire Ø <input id="rwD1" type="number" value="1" step="0.01" style="width:70px"> mm</div>
-    <button class="btn acc" id="rwGo">Calculate</button><div id="rwOut"></div>
-    <div class="mut">N₂ = N₁×(V₂/V₁)×(f₁/f₂) · Ae₂ = Ae₁×(V₁/V₂) · Flux ∝ V/f — slot fill same rakhein.</div></div>
-</div></section>
-
-<!-- ================= 14. GENERATOR ================= -->
-<section id="tab-gen" class="tab"><div class="grid">
-  <div class="card"><h3>Generator / Alternator Sizing</h3>
-    <div class="row">Load <input id="genKw" type="number" value="100" style="width:80px"> kW · PF <input id="genPf" type="number" value="0.8" step="0.05" style="width:70px"></div>
-    <div class="row">Voltage <input id="genV" type="number" value="400" style="width:80px"> V · <select id="genPh" style="width:80px"><option value="3" selected>3-Phase</option><option value="1">1-Phase</option></select> · Margin <input id="genMgn" type="number" value="125" style="width:70px"> %</div>
-    <div class="row">Altitude <input id="genAlt" type="number" value="0" style="width:80px"> m · Amb temp <input id="genAmb" type="number" value="40" style="width:70px"> °C</div>
-    <button class="btn acc" id="genGo">Size it</button><div id="genOut"></div></div>
-  <div class="card"><h3>Generator Formulas &amp; Field Notes</h3><div class="mut">
-   • kVA = kW / PF · I = kVA×1000 / (√3·V) for 3φ<br>
-   • f = P·N / 120 → N = 120·f / P (50 Hz: 1500 rpm @ P=4)<br>
-   • Prime mover ≈ kW / (0.9 × 0.7457) HP — engine ko alternator se ~10% bara rakhein<br>
-   • Derating: altitude &gt;1000 m (~1%/100 m), temp &gt;40 °C (~1%/°C)<br>
-   • Voltage dip on motor start ≤ 10–15%; alternator subtransient reactance X″d matter karti hai<br>
-   • <b>Sync conditions:</b> voltage, frequency, phase sequence, phase angle — chaaron match<br>
-   • Load sharing: speed droop 3–5% (isochronous = no droop, single set ke liye)<br>
-   • AVR: excitation control, ±1% voltage regulation typical<br>
-   • Standby 0.8 PF rated; PF kam ho to kVA rating limit karti hai</div></div>
-  <div class="card"><h3>Typical Sizes</h3><table>
-   <tr><th>Application</th><th>Typical</th></tr>
-   <tr><td>Home backup</td><td>3–10 kVA</td></tr><tr><td>Shop/office</td><td>20–100 kVA</td></tr>
-   <tr><td>Motor-heavy</td><td>3× largest motor kW</td></tr><tr><td>Hospital/IT (standby)</td><td>200 kVA–2 MVA</td></tr></table></div>
-</div></section>
-
-<!-- ================= 15. VFD SIM ================= -->
-<section id="tab-vfd" class="tab"><div class="grid">
-  <div class="card wide"><h3>VFD Simulator — Scalar (V/f) / Quadratic / Vector / Linear Torque</h3>
-    <div class="row">Control <select id="vfdMode" style="width:210px">
-      <option value="vf">Scalar V/f (constant torque)</option>
-      <option value="quad">Quadratic V/f (fan / pump)</option>
-      <option value="vec">Sensorless Vector</option>
-      <option value="lin">Linear torque boost</option></select>
-      Poles <select id="vfdP" style="width:70px"><option>2</option><option selected>4</option><option>6</option><option>8</option></select>
-      Base Hz <input id="vfdBase" type="number" value="50" style="width:60px"></div>
-    <div class="row">V <input id="vfdV" type="number" value="400" style="width:70px"> · Rated <input id="vfdKw" type="number" value="7.5" style="width:70px"> kW · <input id="vfdA" type="number" value="15" style="width:60px"> A</div>
-    <label>Speed setpoint: <b id="vfdHzV">30.0 Hz</b><input id="vfdHz" type="range" min="0" max="700" value="300"></label>
-    <label>Load torque: <b id="vfdLdV">50%</b><input id="vfdLd" type="range" min="0" max="140" value="50"></label>
-    <div class="row">Accel <input id="vfdRamp" type="number" value="2" step="0.1" style="width:70px"> Hz/s
-      <button class="btn acc" id="vfdRun">▶ Run</button><button class="btn" id="vfdStop">⏸ Stop</button>
-      <button class="btn danger" id="vfdTrip">⚡ Fault / Reset</button></div>
-    <canvas id="vfdCv" height="240" style="margin-top:8px"></canvas>
-    <div class="mut">🟠 Torque curve · 🔵 Load line · ⚪ Operating point · 🔴 Stall/Trip · Green dashed = base frequency (field weakening uske baad).</div></div>
-  <div class="card"><h3>Drive Readouts</h3><table>
-    <tr><td>Output frequency</td><td><b id="vfdO1">0</b></td></tr>
-    <tr><td>Motor speed</td><td><b id="vfdO2">0</b></td></tr>
-    <tr><td>V/f ratio</td><td><b id="vfdO3">0</b></td></tr>
-    <tr><td>Motor voltage</td><td><b id="vfdO4">0</b></td></tr>
-    <tr><td>Load / available T</td><td><b id="vfdO5">0</b></td></tr>
-    <tr><td>Motor current</td><td><b id="vfdO6">0</b></td></tr>
-    <tr><td>DC bus</td><td><b id="vfdO7">0</b></td></tr></table>
-    <div id="vfdAl" style="margin-top:6px"></div></div>
-  <div class="card"><h3>VFD Theory (short)</h3><div class="mut">
-   • <b>V/f constant:</b> flux ∝ V/f — base Hz ke neeche V bhi proportionally kam (warna core saturate / over-current)<br>
-   • <b>Constant torque</b> ≤ base Hz, <b>constant power</b> (field weakening) above base<br>
-   • <b>Fan/pump:</b> T ∝ n², P ∝ n³ → quadratic V/f se 50% speed par ~87% energy saving<br>
-   • <b>Vector:</b> stator current d-axis (flux) + q-axis (torque) mein split → 0.5 Hz par bhi 100–150% torque<br>
-   • <b>Ramp:</b> accel time = ΔHz ÷ (Hz/s) · Regenerative braking → chopper + resistor<br>
-   • <b>DC bus:</b> 1.35×V (400 V → ~540 V) · Faults: OC / OL / OV / stall</div></div>
-</div></section>
-
-<!-- ================= 16. SWG WIRE TABLE ================= -->
-<section id="tab-swg" class="tab"><div class="grid">
-  <div class="card wide"><h3>SWG Wire Table — Micrometer Size + Ampacity (Motors / Rewinding)</h3>
-    <div class="row">Current density <input id="swgJ" type="number" value="3" step="0.5" style="width:70px"> A/mm² ·
-      Metal <select id="swgMe" style="width:120px"><option value="cu">Copper</option><option value="al">Aluminium</option></select>
-      · <span class="mut">Find gauge → <input id="swgD" type="number" value="1.219" step="0.001" style="width:80px"> mm <button class="btn" id="swgGo">Which SWG?</button></span></div>
-    <div id="swgOut"></div>
-    <div class="twrap"><table id="swgTbl"></table></div>
-    <div class="mut">Ø mm = bare copper diameter (micrometer se naapein) · Winding wire: <b>2.5–3 A/mm²</b> (dip/immersion cooled), 4–6 A/mm² (forced air) · Enamel: class F 155°C / H 180°C · Slot fill ~0.4–0.5.</div></div>
-</div></section>
-
-<!-- ================= 17. TRANSFORMER ================= -->
-<section id="tab-trafo" class="tab"><div class="grid">
-  <div class="card"><h3>Transformer Winding Calculator</h3>
-    <div class="row">Rating <input id="trKva" type="number" value="5" step="0.5" style="width:70px"> kVA · f <input id="trF" type="number" value="50" style="width:60px"> Hz</div>
-    <div class="row">V₁ <input id="trV1" type="number" value="400" style="width:80px"> V · V₂ <input id="trV2" type="number" value="230" style="width:80px"> V</div>
-    <div class="row">Bm <input id="trB" type="number" value="1.2" step="0.05" style="width:70px"> T · Core area <input id="trA" type="number" value="25" style="width:70px"> cm² · J <input id="trJ" type="number" value="2.5" step="0.5" style="width:60px"> A/mm²</div>
-    <button class="btn acc" id="trGo">Calculate</button><div id="trOut"></div></div>
-  <div class="card"><h3>Transformer Formulas</h3><div class="mut">
-   • Turns ratio <b>a = N₁/N₂ = V₁/V₂ = I₂/I₁</b><br>
-   • EMF: <b>E = 4.44·f·N·Φm</b> · Φm = Bm × Ai (core area)<br>
-   • Turns per volt <b>TPV = 1 / (4.44·f·Bm·Ai)</b><br>
-   • N₁ = V₁ × TPV · N₂ = V₂ × TPV × 1.03 (~3% drop compensate)<br>
-   • I₁ = kVA×1000/V₁ · I₂ = kVA×1000/V₂<br>
-   • Wire area = I / J → Ø = √(4A/π). J: small dry 2–3, oil-filled 1.5–2.5 A/mm²<br>
-   • Short-circuit current Isc ≈ I_fl × 100 / %Z · Losses: Cu = I²R, core = hysteresis + eddy<br>
-   • Efficiency η = kVA·PF / (kVA·PF + Pcu + Pfe)</div></div>
-  <div class="card"><h3>Vector Groups &amp; Notes</h3><table>
-   <tr><th>Group</th><th>Meaning / Use</th></tr>
-   <tr><td>Dyn11</td><td>HV delta, LV star — distribution, 30° shift, 3rd harmonic suppress</td></tr>
-   <tr><td>Yyn0</td><td>HV star, LV star — lighting / neutral loads</td></tr>
-   <tr><td>YNd11</td><td>Star HV + delta LV — large power transformers</td></tr>
-   <tr><td>Dd0</td><td>delta-delta — no neutral, rectifier duty</td></tr></table>
-   <div class="mut">Earthing: LV star neutral earthing · %Impedance 4–6% distribution · OLTC vs OFF-circuit tap changer · Routine tests: ratio, IR (≥ 1 MΩ/kV + 1), %Z, DGA.</div></div>
-</div></section>
-
-<!-- ================= 18. PNEUMATIC VALVE SIM ================= -->
-<section id="tab-pneusim" class="tab"><div class="grid">
-  <div class="card wide"><h3>Pneumatic Valve Simulator — 5/2 · 3/2 · Solenoid / Spring / Air Pilot</h3>
-    <div class="row">Valve <select id="pnvCfg" style="width:210px">
-      <option value="52" selected>5/2 double solenoid</option>
-      <option value="52s">5/2 single solenoid + spring</option>
-      <option value="32">3/2 NC (single acting)</option>
-      <option value="53c">5/3 closed center</option>
-      <option value="53e">5/3 exhaust center</option>
-      <option value="chk">Check / non-return valve</option></select>
-      Actuation <select id="pnvAct" style="width:130px"><option value="sol">Solenoid</option><option value="pil">Air pilot</option><option value="man">Manual</option></select></div>
-    <div class="row">Supply <input id="pnvP" type="number" value="6" step="0.5" style="width:70px"> bar ·
-      Bore <input id="pnvB" type="number" value="32" style="width:60px"> mm · Rod <input id="pnvR" type="number" value="12" style="width:60px"> mm ·
-      Stroke <input id="pnvS" type="number" value="200" style="width:70px"> mm</div>
-    <div class="row">Flow <input id="pnvQ" type="number" value="500" style="width:80px"> Nl/min ·
-      <button class="btn acc" id="pnvRun">▶ Air ON</button>
-      <button class="btn" id="pnvY1">Y1 ⟶</button><button class="btn" id="pnvY2">⟵ Y2</button>
-      <button class="btn danger" id="pnvRs">⟲ Reset</button></div>
-    <canvas id="pnvCv" height="300" style="margin-top:8px"></canvas>
-    <div class="mut">🔵 = supply air · ⚪ dashes = exhaust to atmosphere · Glow = active position · Ports: 1=P, 4/2=A/B, 5/3=R/S exhaust.</div></div>
-  <div class="card"><h3>Live</h3>
-    <div class="row" style="gap:6px"><span class="pill" id="pnvStP">1 P</span><span class="pill" id="pnvStA">4 A</span><span class="pill" id="pnvStB">2 B</span><span class="pill" id="pnvStR">3/5 R</span></div>
-    <table><tr><td>Extend force</td><td><b id="pnvF1">0</b> N</td></tr>
-    <tr><td>Retract force</td><td><b id="pnvF2">0</b> N</td></tr>
-    <tr><td>Rod position</td><td><b id="pnvPos">50</b> %</td></tr>
-    <tr><td>Air per cycle</td><td><b id="pnvAir">0</b> Nl</td></tr>
-    <tr><td>Cycle time</td><td><b id="pnvCt">0</b> s</td></tr></table>
-    <div style="height:14px;background:var(--panel);border-radius:7px;overflow:hidden;margin-top:6px"><div id="pnvPosBar" style="height:100%;width:50%;background:var(--acc)"></div></div></div>
-  <div class="card"><h3>Pneumatic Theory</h3><div class="mut">
-   • F = p(bar) × 0.1 × A(mm²) — 6 bar, Ø32 bore ≈ 483 N extend<br>
-   • Standard air V = A × stroke × (p+1)/1000 → Nl/cycle<br>
-   • Rod speed = (Q/(p+1)) / A → flow control / silencer se adjust<br>
-   • Air pilot shift ≥ 2.5 bar (typical) · Spring-return fail-safe<br>
-   • FRL: Filter 5 µm, Regulator, Lubricator · coalescer 0.01 µm<br>
-   • 3/2 NC single-acting · 5/2 double-acting · 5/3 closed / exhaust / pressure center</div></div>
-  <div class="card"><h3>ISO 1219 Symbols</h3><table>
-   <tr><th>Symbol</th><th>Meaning</th></tr>
-   <tr><td>▭ + arrows</td><td>Position + flow paths</td></tr>
-   <tr><td>⊥ / ╥</td><td>Blocked port / open path</td></tr>
-   <tr><td>◁|</td><td>Solenoid (electrical)</td></tr>
-   <tr><td>▷|</td><td>Air pilot</td></tr>
-   <tr><td>⊳⊳</td><td>Spring return</td></tr>
-   <tr><td>△ / ▽</td><td>Exhaust to atmosphere / silencer</td></tr></table></div>
-</div></section>
-
-<!-- ================= 19. SENSORS ================= -->
-<section id="tab-sensors" class="tab"><div class="grid">
-  <div class="card wide"><h3>Temperature Sensors — All Types</h3><div class="twrap"><table id="snsT"></table></div></div>
-  <div class="card"><h3>NTC Thermistor Calculator</h3>
-    <div class="row">R25 <input id="ntcR0" type="number" value="10000" style="width:90px"> Ω · B <input id="ntcB" type="number" value="3950" style="width:80px"> K</div>
-    <div class="row">Temp <input id="ntcT" type="number" value="50" style="width:70px"> °C <button class="btn acc" id="ntcGo">Resistance</button></div>
-    <div id="ntcOut"></div>
-    <div class="mut">R(T) = R25 · e^[B(1/T − 1/298.15)] (T Kelvin). Self-heating: current &lt;100 µA rakhein.</div></div>
-  <div class="card"><h3>Proximity Sensor — Real Sensing Distance</h3>
-    <div class="row">Type <select id="prxT" style="width:170px"><option value="ind">Inductive (metal)</option><option value="cap">Capacitive</option><option value="mag">Magnetic / Reed</option><option value="ult">Ultrasonic</option><option value="pho">Photoelectric</option></select>
-      Rated Sn <input id="prxSn" type="number" value="8" style="width:60px"> mm</div>
-    <div class="row">Target <select id="prxM" style="width:220px"><option value="1">Mild steel (×1.00)</option><option value="0.7">Stainless 304 (×0.70)</option><option value="0.45">Brass (×0.45)</option><option value="0.4">Aluminium (×0.40)</option><option value="0.35">Copper (×0.35)</option><option value="0.3">Water / plastic (capacitive)</option></select>
-      <button class="btn acc" id="prxGo">Calculate</button></div>
-    <div id="prxOut"></div>
-    <div class="mut">Sa = Sn × material factor · Shielded (flush) ≈ 0.6× unshielded · Hysteresis 5–20% · NPN sink / PNP source.</div></div>
-  <div class="card"><h3>Photoelectric Modes</h3><table>
-   <tr><th>Mode</th><th>Range</th><th>Use</th></tr>
-   <tr><td>Through-beam</td><td>Longest</td><td>Most reliable, opaque parts</td></tr>
-   <tr><td>Retro-reflective</td><td>Medium</td><td>Reflector, single-side wiring</td></tr>
-   <tr><td>Diffuse</td><td>Short</td><td>Direct target, no reflector</td></tr>
-   <tr><td>Background suppress</td><td>Short</td><td>Ignore shiny background</td></tr>
-   <tr><td>Fibre optic</td><td>Tiny spot</td><td>Hot / tight space, high temp</td></tr></table>
-   <div class="mut">L.on / D.on selectable · Response &lt;1 ms · IR 850 nm / Red / Laser class 1–2.</div></div>
-  <div class="card"><h3>Limit Switch &amp; Contact Logic</h3><table id="lsT"></table>
-    <div class="mut">SPDT 1NO+1NC · Snap action · Roller plunger / lever / rod · IP65–IP67 · Safety interlock hamesha NC (fail-safe).</div></div>
-  <div class="card"><h3>Sensor Wiring Quick Guide</h3><div class="mut">
-   • <b>NPN (sinking):</b> output load ko 0 V par kheenchta hai<br>
-   • <b>PNP (sourcing):</b> output +V deta hai → PLC DI common 0 V<br>
-   • <b>2-wire:</b> series, leakage current check (off-state)<br>
-   • <b>NAMUR 2-wire:</b> 8.2 V, ≤1.2 mA damped / ≥2.1 mA undamped (Ex-i)<br>
-   • <b>Analog:</b> 4–20 mA (loop powered) / 0–10 V · 250 Ω shunt se 1–5 V</div></div>
-</div></section>
-
-<!-- ================= 20. BONUS LAB ================= -->
+<!-- ================= 12. BONUS LAB ================= -->
 <section id="tab-bonus" class="tab"><div class="grid">
   <div class="card wide"><h3>🦉 Snow-Owl Bonus Lab — Bearing Life (L10)</h3>
     <div class="row">Dynamic C <input id="bC" type="number" value="32000" style="width:90px"> N · Load P <input id="bP" type="number" value="3200" style="width:80px"> N · <select id="bT" style="width:150px"><option value="3">Ball (p=3)</option><option value="3.3333">Roller (p=10/3)</option></select></div>
@@ -707,16 +444,46 @@ function fitCv(cv){
   x.setTransform(d*scale,0,0,d*scale,0,0);
   return[x,w/scale,h/scale];
 }
+function plotLine(cv,series,opt){
+  if(!cv)return;
+  const[x,W,H]=fitCv(cv);
+  x.clearRect(0,0,W,H);
+  const cs=k=>getComputedStyle(document.body).getPropertyValue(k).trim();
+  const line=cs('--line')||'#24384c',mut=cs('--mut')||'#8fa6ba';
+  x.strokeStyle=line;x.lineWidth=1;
+  x.beginPath();x.moveTo(0,H/2);x.lineTo(W,H/2);x.stroke();
+  if(!series||!series.length)return;
+  let all=[],maxV=-1e9,minV=1e9;
+  series.forEach(s=>{s.data.forEach(v=>{if(isFinite(v)){all.push(v);if(v>maxV)maxV=v;if(v<minV)minV=v}})});
+  if(!all.length)return;
+  if(opt&&opt.hline!==undefined){maxV=Math.max(maxV,opt.hline*1.3);minV=Math.min(minV,0)}
+  const pad=(maxV-minV)*0.1||1;
+  maxV+=pad;minV-=pad;
+  const n=Math.max(...series.map(s=>s.data.length));
+  if(n<2)return;
+  const X=i=>8+i*(W-16)/(n-1);
+  const Y=v=>H-10-((v-minV)/(maxV-minV))*(H-20);
+  if(opt&&opt.hline!==undefined){
+    x.strokeStyle=cs('--warn')||'#f5a623';x.setLineDash([5,4]);
+    x.beginPath();x.moveTo(8,Y(opt.hline));x.lineTo(W-8,Y(opt.hline));x.stroke();
+    x.setLineDash([])}
+  series.forEach(s=>{
+    x.strokeStyle=s.color||'#00e5c3';x.lineWidth=1.8;
+    x.beginPath();
+    s.data.forEach((v,i)=>{if(!isFinite(v))return;i?x.lineTo(X(i),Y(v)):x.moveTo(X(i),Y(v))});
+    x.stroke()});
+}
+
 /* ============ THEME & TABS ============ */
 function setTheme(t){document.body.classList.toggle('light',t==='light');$('#themeBtn').textContent=t==='light'?'🌙':'☀️';LS.s('theme',t)}
 $('#themeBtn').onclick=()=>setTheme(document.body.classList.contains('light')?'dark':'light');setTheme(LS.g('theme','dark'));
-const TABS=[['instruments','🎚️ Instruments'],['motors','⚡ Motors'],['wires','🔌 Wires'],['battery','🔋 Battery'],['periodic','🧪 Periodic'],['bearings','⚙️ Bearings'],['breakers','🛡️ Breakers'],['pneumatic','💨 Pneumatics'],['valvesim','🎛️ Valve Sim'],['convert','🔢 Converters'],['vibro','📉 Vibrometer'],['rtd','🌡️ RTD/TC']];
+const TABS=[['instruments','🎚️ Instruments'],['motors','⚡ Motors'],['wires','🔌 Wires'],['battery','🔋 Battery'],['periodic','🧪 Periodic'],['bearings','⚙️ Bearings'],['breakers','🛡️ Breakers'],['pneumatic','💨 Pneumatics'],['convert','🔢 Converters'],['vibro','📉 Vibrometer'],['rtd','🌡️ RTD/TC'],['bonus','🦉 Bonus Lab']];
 const SIMS={};let runningSim=null,curTab='instruments';
 TABS.forEach(([id,lb])=>{const b=document.createElement('button');b.className='tabbtn';b.textContent=lb;b.dataset.id=id;b.onclick=()=>activateTab(id);$('#tabs').appendChild(b)});
 function activateTab(id){curTab=id;$$('.tabbtn').forEach(b=>b.classList.toggle('active',b.dataset.id===id));$$('.tab').forEach(s=>s.classList.toggle('active',s.id==='tab-'+id));
  if(runningSim&&SIMS[runningSim]){SIMS[runningSim].stop();runningSim=null}
  if(SIMS[id]){SIMS[id].start();runningSim=id}}
-window.addEventListener('resize',()=>{if(curTab==='instruments')insDraw();if(curTab==='motors')motDraw();if(curTab==='vibro')vibDraw();if(curTab==='valvesim')vsDraw()});
+window.addEventListener('resize',()=>{if(curTab==='instruments')insDraw();if(curTab==='motors')motDraw();if(curTab==='vibro')vibDraw()});
 
 /* ============ 1. INSTRUMENTS ============ */
 const INS_SPANS={p:[0,10,'bar'],f:[0,100,'m³/h'],t:[0,400,'°C'],l:[0,100,'%']};
@@ -904,7 +671,7 @@ $('#pnGo').onclick=()=>{const B=+$('#pnBore').value,R=+$('#pnRod').value,p=+$('#
  const A1=Math.PI/4*B*B,A2=Math.PI/4*(B*B-R*R);
  $('#pnFOut').innerHTML='<div class="mid">Extend: '+fmt(.1*p*A1,0)+' N | Retract: '+fmt(.1*p*A2,0)+' N</div><div class="mut">A₁='+fmt(A1,0)+' mm² · A₂='+fmt(A2,0)+' mm² · F = p(bar)×0.1×A(mm²)</div>'};
 
-/* ============ 10. CONVERTERS ============ */
+/* ============ 9. CONVERTERS ============ */
 $('#bcGo').onclick=()=>{const v=parseInt($('#bcIn').value.trim(),+$('#bcBase').value);
  if(isNaN(v)){$('#bcOut').innerHTML='<span class="pill bad">Invalid number for selected base</span>';return}
  $('#bcOut').innerHTML='<table><tr><th>Base</th><th>Value</th></tr><tr><td>Decimal</td><td><b>'+v.toString(10)+'</b></td></tr><tr><td>Hex</td><td><b>0x'+v.toString(16).toUpperCase()+'</b></td></tr><tr><td>Binary</td><td><b>0b'+v.toString(2)+'</b></td></tr><tr><td>Octal</td><td><b>0o'+v.toString(8)+'</b></td></tr><tr><td>Bytes (32-bit LE)</td><td>'+[v&255,v>>8&255,v>>16&255,v>>>24].map(x=>x.toString(16).padStart(2,'0').toUpperCase()).join(' ')+'</td></tr></table>'};
@@ -924,8 +691,10 @@ $('#mbGo').onclick=()=>{const v=parseFloat($('#mbIn').value);if(isNaN(v)){$('#mb
 $('#mbRev').onclick=()=>{const r1=$('#mbR1').value.trim().toUpperCase(),r2=$('#mbR2').value.trim().toUpperCase(),sw=s=>s.slice(2)+s.slice(0,2);
  let h;switch($('#mbOrder').value){case'ABCD':h=r1+r2;break;case'CDAB':h=r2+r1;break;case'BADC':h=sw(r1)+sw(r2);break;default:h=sw(r2)+sw(r1)}
  try{$('#mbOut2').innerHTML='<div class="big">'+hex2f(h,32)+'</div>'}catch(e){$('#mbOut2').innerHTML='<span class="pill bad">'+e+'</span>'}};
+$('#mavGo').onclick=()=>{const ma=+$('#mavMa').value,R=$('#mavR').value==='custom'?+$('#mavRc').value:+$('#mavR').value,Vl=ma*R/1000,lo=+$('#mavLo').value,hi=+$('#mavHi').value,pv=lo+(hi-lo)*(ma-4)/16;
+ $('#mavOut').innerHTML='<div class="mid">'+fmt(ma,2)+' mA × '+R+' Ω = <b>'+fmt(Vl,3)+' V</b></div><div class="mut">PV = '+fmt(pv,2)+' ('+fmt((ma-4)/16*100,1)+'% span) · '+(ma<3.6||ma>21?'<span class="pill warn">NAMUR fault</span>':'<span class="pill ok">Valid</span>')+'</div>'};
 
-/* ============ 11. VIBROMETER ============ */
+/* ============ 10. VIBROMETER ============ */
 const ISOZ={1:{r:[2.3,4.5,7.1],f:[3.5,7.1,11]},2:{r:[1.4,2.8,4.5],f:[2.3,4.5,7.1]}};
 let vTimer=null,vTickN=0,vWave=[],vSpecData=[],vTrend=[],vSnaps=LS.g('vSnaps',[]),vNavIdx=-1,VSCALE=12;
 [['vUnbal','vUv'],['vMisal','vMv'],['vBear','vBv'],['vLoose','vLv']].forEach(([s,l])=>$('#'+s).oninput=()=>$('#'+l).textContent=$('#'+s).value+'%');
@@ -978,7 +747,7 @@ $('#vClr').onclick=()=>{vSnaps=[];vNavIdx=-1;LS.s('vSnaps',vSnaps);vRenderSnaps(
 SIMS.vibro={start(){if(!vTimer){vTimer=setInterval(vibTick,500);vibTick()}},stop(){clearInterval(vTimer);vTimer=null}};
 vRenderSnaps();
 
-/* ============ 14. RTD / THERMOCOUPLE ============ */
+/* ============ 11. RTD / THERMOCOUPLE ============ */
 const RTD_A=3.9083e-3,RTD_B=-5.775e-7,RTD_C=-4.183e-12;
 function rtdRes(t,R0){let r=1+RTD_A*t+RTD_B*t*t;if(t<0)r+=RTD_C*(t-100)*t*t*t;return R0*r}
 function rtdTemp(R,R0){const r=R/R0,disc=RTD_A*RTD_A-4*RTD_B*(1-r);if(disc<0)return NaN;
@@ -1007,278 +776,27 @@ $('#tcGo').onclick=()=>{const ty=$('#tcType').value,v=+$('#tcVal').value,cj=+$('
 $('#txGo').onclick=()=>{const lo=+$('#txLo').value,hi=+$('#txHi').value,ma=+$('#txMa').value,pv=lo+(hi-lo)*(ma-4)/16;
  $('#txOut').innerHTML='<div class="mid">'+fmt(ma,2)+' mA → <b>'+fmt(pv,1)+' °C</b></div>'+(ma<3.6||ma>21?'<span class="pill warn">NAMUR NE43 fault signal!</span>':'<span class="pill ok">Valid span signal</span>')};
 
-/* ============ 15. HYDRAULIC VALVE SIM ============ */
-const VST={cfg:'43',center:'closed',act:'sol',pump:false,y1:false,y2:false,m1:false,m2:false,
- pilotP:0,sysP:0,pA:0,pB:0,pos:50,flow:0,dash:0,relOpen:false,lastRel:undefined,state:'',f:{},log:LS.g('vsLog',[]),timer:null};
-const vsRelief=()=>+$('#vsRelief').value||150,vsQ=()=>+$('#vsQ').value||40,vsLoad=()=>+$('#vsLoad').value||35;
-function vsLogEv(ev){VST.log.unshift({t:new Date().toLocaleTimeString(),ev});VST.log=VST.log.slice(0,50);LS.s('vsLog',VST.log);vsLogR()}
-function vsLogR(){tbl($('#vsLogTbl'),['Time','Event'],VST.log.slice(0,20).map(r=>[r.t,r.ev]))}
-vsLogR();
-function vsMsg(A,B,pA_,pB_,aT){const c=VST.cfg;
- if(c==='chk')return'CHECK VALVE: P→A free flow, reverse BLOCKED';
- if(c==='22nc'||c==='22no')return pA_?'2/2 OPEN — flow P→A':'2/2 CLOSED — P BLOCKED (dead-head)';
- if(c==='32nc'||c==='32no')return pA_?'3/2: P→A — cylinder EXTEND':'3/2: A→T — spring RETRACT, P blocked';
- if(c==='42')return pA_?'4/2: P→A, B→T — EXTEND':'4/2: P→B, A→T — RETRACT';
- if(A)return'4/3 pos-a: P→A, B→T — EXTEND';
- if(B)return'4/3 pos-b: P→B, A→T — RETRACT';
- return{closed:'4/3 CENTER-CLOSED: P,T,A,B all BLOCKED',tandem:'4/3 CENTER-TANDEM: P→T (pump unload), A/B hold',open:'4/3 CENTER-OPEN: all→T (float)',float:'4/3 CENTER-FLOAT: A,B→T, P blocked ⚠'}[VST.center]}
-function vsReset(){VST.pump=false;VST.y1=VST.y2=false;VST.m1=VST.m2=false;VST.pos=50;
- VST.sysP=0;VST.pilotP=0;VST.pA=0;VST.pB=0;VST.flow=0;VST.temp=32;VST.relOpen=false;VST.state='';
- $('#vsPump').textContent='▶ Pump';vsLogEv('⟲ SYSTEM RESET — sab defaults par wapas')}
-$('#vsReset').onclick=vsReset;
-function vsTick(){
- VST.dash=(VST.dash-4)%2000;
- const relSet=vsRelief(),Qp=vsQ(),loadP=vsLoad();
- const pil=(VST.act==='pil')&&(VST.y1||VST.y2)&&VST.pump;
- VST.pilotP+=((pil?42:0)-VST.pilotP)*.12;if(!pil&&VST.pilotP<0.4)VST.pilotP=0;
- const thr=VST.pilotP>=25;
- const A=VST.act==='man'?VST.m1:(VST.act==='sol'?VST.y1:(VST.y1&&thr));
- const B=VST.act==='man'?VST.m2:(VST.act==='sol'?VST.y2:(VST.y2&&thr));
- const c=VST.cfg,cen=VST.center;
- let pA_=0,pB_=0,aT=0,bT=0,pT=0,pBlocked=0;
- if(c==='chk'){pA_=VST.pump?1:0;pBlocked=VST.pump?0:1}
- else if(c==='22nc'){pA_=A?1:0;pBlocked=A?0:1}
- else if(c==='22no'){pA_=A?0:1;pBlocked=A?1:0}
- else if(c==='32nc'){if(A)pA_=1;else{aT=1;pBlocked=1}}
- else if(c==='32no'){if(!A)pA_=1;else{aT=1;pBlocked=1}}
- else if(c==='42'){if(A){pA_=1;bT=1}else{pB_=1;aT=1}}
- else if(c==='43'){
-  if(A){pA_=1;bT=1}else if(B){pB_=1;aT=1}
-  else if(cen==='closed')pBlocked=1;
-  else if(cen==='tandem')pT=1;
-  else if(cen==='open'){pT=1;aT=1;bT=1}
-  else{pBlocked=1;aT=1;bT=1}}
- let dir=0,moving=false;
- const atA=VST.pos>=99.9,atB=VST.pos<=0.1;
- if(pA_&&!atA&&VST.pump)dir=1;else if(pB_&&!atB&&VST.pump)dir=-1;
- else if(aT&&!pA_&&!pB_&&(c==='32nc'||c==='32no')&&VST.pos>0.5)dir=-1;
- if(dir!==0){VST.pos=Math.max(0,Math.min(100,VST.pos+dir*Qp*0.055));moving=true;VST.flow=Qp}else VST.flow=0;
- const stalled=(pA_&&atA)||(pB_&&atB);
- const blocked=(VST.pump&&(pBlocked||stalled))?1:0;
- let target=0;
- if(!VST.pump)target=0;else if(pT)target=8;else if(moving)target=loadP;else if(blocked)target=relSet;else target=3;
- VST.sysP+=(target-VST.sysP)*.15+(Math.random()-.5)*.7;if(VST.sysP<0)VST.sysP=0;
- VST.relOpen=VST.pump&&VST.sysP>=relSet*.97;
- VST.pA=pA_?VST.sysP:(aT?1:(c==='43'&&cen==='closed'&&!A&&!B?VST.pos/100*VST.sysP*.5:0));
- VST.pB=pB_?VST.sysP:(bT?1:(c==='43'&&cen==='closed'&&!A&&!B?(1-VST.pos/100)*VST.sysP*.5:0));
- VST.f={A,B,pA_,pB_,aT,bT,pT,blocked,moving,dir};
- const st=c+'|'+(c==='43'?cen+'|':'')+(A?'a':B?'b':'-');
- if(st!==VST.state){VST.state=st;vsLogEv(vsMsg(A,B,pA_,pB_,aT))}
- if(VST.lastRel!==undefined&&VST.relOpen!==VST.lastRel)vsLogEv(VST.relOpen?'⚠ RELIEF OPEN — pump oil → tank (HEAT!)':'Relief closed');
- VST.lastRel=VST.relOpen;
- $('#vgSys').textContent=fmt(VST.sysP,0);$('#vgPil').textContent=fmt(VST.pilotP,0);
- $('#vgA').textContent=fmt(VST.pA,0);$('#vgB').textContent=fmt(VST.pB,0);$('#vgQ').textContent=fmt(VST.flow,0);
- $('#vgPos').textContent=fmt(VST.pos,0)+'%';$('#vgPosBar').style.width=VST.pos+'%';
- let s1,cls='ok';
- if(!VST.pump){s1='PUMP OFF';cls=''}
- else if(VST.relOpen){s1='⚠ RELIEF OPEN — ENERGY → HEAT';cls='bad'}
- else if(pT){s1='PUMP UNLOADED → TANK'}
- else if(moving){s1='CYLINDER '+(dir>0?'EXTENDING ▶':'◀ RETRACTING')}
- else if(blocked){s1='DEAD-HEAD — PRESSURE → RELIEF';cls='warn'}
- else{s1='IDLE';cls='warn'}
- $('#vgSt').innerHTML='<span class="pill '+cls+'">'+s1+'</span>';
- const sb=(id,st,cl)=>{const e=$(id);e.textContent=st;e.className='pill '+cl};
- sb('#vsStP',!VST.pump?'P: OFF':pT?'P: →T UNLOAD':blocked?'P: BLOCKED':'P: FEED ▶',!VST.pump?'':pT?'ok':blocked?'bad':'warn');
- sb('#vsStT',(pT||aT||bT)?'T: RETURN ⬇':'T: dry',(pT||aT||bT)?'ok':'');
- sb('#vsStA',pA_?'A: PRESSURE (EXT)':aT?'A: →TANK':'A: HOLD',pA_?'warn':aT?'ok':'');
- sb('#vsStB',pB_?'B: PRESSURE (RET)':bT?'B: →TANK':'B: HOLD',pB_?'warn':bT?'ok':'');
- $('#vsPath').textContent='Now: '+vsMsg(A,B,pA_,pB_,aT);
- vsDraw()}
-function vsDraw(){
-  const cv=$('#vsCv');if(!cv)return;
-  
-  const isMobile = window.innerWidth <= 700;
-  const DESIGN_W = 660;
-  const DESIGN_H = 340;
-  
-  if(isMobile){
-    const displayW = window.innerWidth - 24;
-    const scale = displayW / DESIGN_W;
-    const displayH = Math.round(DESIGN_H * scale);
-    cv.style.width = displayW + 'px';
-    cv.style.height = displayH + 'px';
-    cv.dataset.h = displayH;
-  } else {
-    cv.style.width = '';
-    cv.style.height = '';
-  }
-  
-  const[x,W,H]=fitCv(cv);x.clearRect(0,0,W,H);
-  const cs=k=>getComputedStyle(document.body).getPropertyValue(k).trim();
-  const cw=cs('--line')||'#24384c',cp=cs('--panel')||'#131e29',ct=cs('--txt')||'#eee',cm=cs('--mut')||'#889';
-  const ca='#00e5c3',co='#f5a623',cr='#ff5c5c',cg='#2ecc71',cd='#3d5a75';
-  const f=VST.f||{},c=VST.cfg,cen=VST.center;
-  const label=(tx,ty,txt,col,bg)=>{x.font='bold 10px system-ui';const w=x.measureText(txt).width;
-   if(bg!==false){x.fillStyle='rgba(10,22,34,.85)';x.fillRect(tx-3,ty-10,w+6,14)}
-   x.fillStyle=col;x.fillText(txt,tx,ty);return w};
-  const vw=52,vh=70,gap=6,vy=150;
-  let nB,vx;
-  if(c==='chk'){nB=1;vx=300}else if(c==='43'){nB=3;vx=240}else{nB=2;vx=270}
-  const rx=vx+(nB-1)*(vw+gap);
-  let P={x:rx+14,y:vy+vh},T={x:rx+38,y:vy+vh},A={x:rx+14,y:vy},B={x:rx+38,y:vy};
-  if(c==='chk'){P.x=vx+14;A.x=vx+38}
-  if(c==='22nc'||c==='22no'){P.x=rx+14;A.x=rx+38}
-  if(c==='32nc'||c==='32no'){T={x:rx+38,y:vy+vh}}
-  const four=c==='42'||c==='43';
-  x.strokeStyle=cw;x.lineWidth=2;x.beginPath();x.moveTo(20,318);x.lineTo(650,318);x.stroke();
-  x.beginPath();x.arc(45,296,14,0,7);x.fillStyle=cp;x.fill();
-  x.strokeStyle=VST.pump?cg:cd;x.lineWidth=2;x.stroke();
-  x.beginPath();x.moveTo(40,303);x.lineTo(45,287);x.lineTo(50,303);x.closePath();x.fillStyle=VST.pump?cg:cm;x.fill();
-  x.strokeStyle=f.relOpen?cr:cd;x.lineWidth=2;
-  x.beginPath();x.moveTo(200,296);x.lineTo(200,268);x.stroke();
-  x.strokeRect(186,238,28,30);
-  x.beginPath();x.moveTo(190,262);x.lineTo(200,250);x.lineTo(210,262);x.stroke();
-  if(f.relOpen){x.strokeStyle=cr;x.lineWidth=3;x.setLineDash([8,6]);x.lineDashOffset=VST.dash;
-   x.beginPath();x.moveTo(214,253);x.lineTo(236,253);x.lineTo(236,318);x.stroke();x.setLineDash([])}
-  const pFlow=VST.pump&&(f.pA_||f.pB_||f.pT);
-  x.lineWidth=3;x.beginPath();x.moveTo(59,296);x.lineTo(P.x,296);x.lineTo(P.x,P.y+4);
-  if(pFlow){x.setLineDash([11,8]);x.lineDashOffset=VST.dash}
-  x.strokeStyle=!VST.pump?cd:(pFlow?co:cd);x.stroke();x.setLineDash([]);
-  x.lineWidth=2.5;x.beginPath();x.moveTo(T.x,T.y+4);x.lineTo(T.x,318);
-  const tAny=f.pT||f.aT||f.bT;
-  if(tAny){x.setLineDash([11,8]);x.lineDashOffset=-VST.dash}
-  x.strokeStyle=tAny?ca:cd;x.stroke();x.setLineDash([]);
-  const aCol=f.pA_?co:(f.aT?ca:cd),aRev=f.aT&&!f.pA_;
-  x.lineWidth=3;x.beginPath();x.moveTo(A.x,A.y-4);x.lineTo(A.x,132);x.lineTo(470,132);x.lineTo(470,156);
-  if(f.pA_||f.aT){x.setLineDash([11,8]);x.lineDashOffset=aRev?-VST.dash:VST.dash}
-  x.strokeStyle=aCol;x.stroke();x.setLineDash([]);
-  if(four){const bCol=f.pB_?co:(f.bT?ca:cd),bRev=f.bT&&!f.pB_;
-   x.beginPath();x.moveTo(B.x,B.y-4);x.lineTo(B.x,120);x.lineTo(648,120);x.lineTo(648,182);x.lineTo(620,182);
-   if(f.pB_||f.bT){x.setLineDash([11,8]);x.lineDashOffset=bRev?-VST.dash:VST.dash}
-   x.strokeStyle=bCol;x.stroke();x.setLineDash([])}
-  const sqX=i=>vx+i*(vw+gap);
-  let act=0;
-  if(c==='43')act=f.A?0:(f.B?2:1);
-  else act=(c==='chk')?0:(f.A||(c==='32no'&&!f.A)||(c==='22no'&&!f.A)?0:1);
-  for(let i=0;i<nB;i++){const sx=sqX(i),on=i===act;
-   x.fillStyle=on?'rgba(0,180,216,.16)':cp;x.fillRect(sx,vy,vw,vh);
-   x.strokeStyle=on?ca:cd;x.lineWidth=on?2.5:1.4;x.strokeRect(sx,vy,vw,vh);
-   if(on){x.shadowBlur=10;x.shadowColor=ca;x.strokeRect(sx,vy,vw,vh);x.shadowBlur=0}}
-  const arrow=(x1,y1,x2,y2,col,lw)=>{x.strokeStyle=col;x.lineWidth=lw||2.2;x.beginPath();x.moveTo(x1,y1);x.lineTo(x2,y2);x.stroke();
-   const a=Math.atan2(y2-y1,x2-x1);x.fillStyle=col;x.beginPath();
-   x.moveTo(x2,y2);x.lineTo(x2-9*Math.cos(a-.42),y2-9*Math.sin(a-.42));x.lineTo(x2-9*Math.cos(a+.42),y2-9*Math.sin(a+.42));x.closePath();x.fill()};
-  const blk=(px,py,dx,dy,col)=>{const ex=px+dx,ey=py+dy;x.strokeStyle=col;x.lineWidth=2.2;
-   x.beginPath();x.moveTo(px,py);x.lineTo(ex,ey);x.stroke();
-   x.beginPath();x.moveTo(ex-dy*8,ey+dx*8);x.lineTo(ex+dy*8,ey-dx*8);x.stroke()};
-  const AC=on=>on?co:cm,TC=on=>on?ca:cm;
-  const sx=sqX(act),mx=sx+vw/2,my=vy+vh/2;
-  if(c==='chk'){
-   x.strokeStyle=AC(f.pA_);x.lineWidth=2.2;
-   x.beginPath();x.moveTo(sx+8,my+10);x.lineTo(mx,my+2);x.lineTo(sx+vw-8,my+10);x.stroke();
-   const lift=f.pA_?5:0,byc=my-8-lift;
-   x.beginPath();x.arc(mx,byc,8,0,7);x.fillStyle=cp;x.fill();x.strokeStyle=f.pA_?co:cm;x.lineWidth=2;x.stroke();
-   if(f.pA_)arrow(sx+14,vy+vh-10,sx+vw-14,vy+10,co)}
-  else{
-   const N=(c==='22nc'||c==='22no');
-   if(act===0){
-    if(N){arrow(sx+12,vy+vh-8,sx+vw-12,vy+8,co)}
-    else if(c==='32nc'||c==='32no'){arrow(sx+12,vy+vh-8,sx+vw-12,vy+8,co);blk(sx+vw-12,vy+vh,0,12,cm)}
-    else{arrow(sx+14,vy+vh-8,sx+14,vy+8,co);arrow(sx+vw-14,vy+8,sx+vw-14,vy+vh-8,co)}
-   }else if(act===2){
-    arrow(sx+12,vy+vh-8,sx+vw-12,vy+8,co);arrow(sx+12,vy+8,sx+vw-12,vy+vh-8,co)
-   }else{
-    if(c==='22nc'){blk(mx,vy+vh,0,-14,cm);blk(mx,vy,0,14,cm)}
-    else if(c==='22no'){arrow(sx+12,vy+vh-8,sx+vw-12,vy+8,co)}
-    else if(c==='32nc'){arrow(sx+12,vy+8,sx+vw-12,vy+vh-8,TC(!f.A));blk(sx+12,vy+vh,0,-14,cm)}
-    else if(c==='32no'){arrow(sx+12,vy+vh-8,sx+vw-12,vy+8,co);blk(sx+vw-12,vy+vh,0,-14,cm)}
-    else if(c==='42'){arrow(sx+12,vy+vh-8,sx+vw-12,vy+8,co);arrow(sx+12,vy+8,sx+vw-12,vy+vh-8,co)}
-    else if(cen==='closed'){blk(mx-12,vy+vh,0,-14,cm);blk(mx+12,vy+vh,0,-14,cm);blk(mx-12,vy,0,14,cm);blk(mx+12,vy,0,14,cm)}
-    else if(cen==='tandem'){arrow(sx+10,my,sx+vw-10,my,ca);blk(mx-12,vy,0,14,cm);blk(mx+12,vy,0,14,cm)}
-    else if(cen==='open'){arrow(sx+12,vy+vh-6,mx,my-4,ca);arrow(sx+vw-12,vy+vh-6,mx,my-4,ca);arrow(sx+12,vy+6,mx,my+4,ca);arrow(sx+vw-12,vy+6,mx,my+4,ca)}
-    else{blk(sx+10,my,-14,0,cm);arrow(sx+22,my,sx+vw-10,my,ca);blk(mx-12,vy,0,14,cm);blk(mx+12,vy,0,14,cm)}
-   }}
-  if(c!=='chk'){x.strokeStyle=cm;x.lineWidth=1.8;x.beginPath();
-   const gxp=sqX(nB-1)+vw+4;
-   x.moveTo(gxp,my-12);x.lineTo(gxp+7,my-6);x.lineTo(gxp,my);x.lineTo(gxp+7,my+6);x.lineTo(gxp,my+12);x.stroke();
-   label(gxp-4,my+28,'spring',cm)}
-  const sol=(bx,on,lab)=>{x.fillStyle=on?'rgba(46,204,113,.25)':cp;x.fillRect(bx,my-13,16,26);
-   x.strokeStyle=on?cg:cd;x.lineWidth=on?2:1.4;x.strokeRect(bx,my-13,16,26);
-   if(on){x.strokeStyle=cg;x.beginPath();x.moveTo(bx+3,my+7);x.lineTo(bx+13,my-7);x.stroke()}
-   label(bx-2,my+30,lab,on?cg:cm)};
-  if(c!=='chk')sol(vx-20,f.A||((c==='32no'||c==='22no')&&!f.A),'Y1');
-  if(c==='43')sol(sqX(2)+vw+4,f.B,'Y2');
-  if(VST.act==='pil'){const pOn=VST.pilotP>=25;
-   x.fillStyle=pOn?'rgba(46,204,113,.2)':cp;x.fillRect(258,66,52,26);x.strokeStyle=cd;x.strokeRect(258,66,52,26);
-   if(pOn){x.strokeStyle=cg;x.beginPath();x.moveTo(264,84);x.lineTo(272,72);x.lineTo(280,84);x.stroke()}
-   label(264,83,'PILOT',pOn?cg:cm,false);
-   x.setLineDash([5,4]);x.strokeStyle=pOn?cg:cm;x.beginPath();x.moveTo(284,92);x.lineTo(284,vy);x.stroke();x.setLineDash([]);
-   label(246,56,'PILOT '+fmt(VST.pilotP,0)+' bar (≥25 shift)',pOn?cg:cm)}
-  x.fillStyle=cp;x.strokeStyle=cd;x.lineWidth=2;x.fillRect(470,150,150,64);x.strokeRect(470,150,150,64);
-  const px=476+VST.pos*1.34,al=Math.min(.6,VST.pA/160),bl=Math.min(.6,VST.pB/160);
-  x.fillStyle='rgba(245,166,35,'+al+')';x.fillRect(471,151,Math.max(0,px-471),62);
-  x.fillStyle='rgba(0,229,195,'+bl+')';x.fillRect(px+10,151,Math.max(0,618-px-10),62);
-  x.fillStyle=ct;x.fillRect(px,152,10,60);x.fillRect(px+10,177,Math.max(0,648-px-10),8);
-  if(!four){x.strokeStyle=cm;x.lineWidth=1.5;x.beginPath();
-   x.moveTo(598,158);x.lineTo(606,164);x.lineTo(598,170);x.lineTo(606,176);x.lineTo(598,182);x.lineTo(606,188);x.lineTo(598,194);x.lineTo(606,200);x.stroke()}
-  label(276,312,'PUMP',cm);label(600,312,'TANK',cm);
-  label(188,232,'RELIEF '+fmt(vsRelief(),0)+' bar'+(f.relOpen?' ⚠ OPEN':''),f.relOpen?cr:cm);
-  label(476,146,'CAP',cm);label(584,146,'ROD',cm);
-  if(!four)label(556,144,'spring return',cm);
-  const badge=(px2,py2,lab,col)=>{x.beginPath();x.arc(px2,py2,11,0,7);x.fillStyle='rgba(10,22,34,.95)';x.fill();
-   x.strokeStyle=col;x.lineWidth=2;x.stroke();x.fillStyle=col;x.font='bold 11px Consolas,monospace';
-   x.textAlign='center';x.fillText(lab,px2,py2+4);x.textAlign='left'};
-  badge(P.x,238,'P',!VST.pump?cm:(pFlow||f.blocked?co:cd));
-  badge(T.x,262,'T',tAny?ca:cm);
-  badge(A.x,108,'A',f.pA_?co:(f.aT?ca:cm));
-  if(four)badge(B.x,92,'B',f.pB_?co:(f.bT?ca:cm));
-  x.font='bold 11px system-ui';
-  const ttl=$('#vsCfg').selectedOptions[0].text.toUpperCase()+(c==='43'?' — '+cen.toUpperCase()+' CENTER':'');
-  const tw=x.measureText(ttl).width;
-  x.fillStyle='rgba(10,22,34,.9)';x.fillRect(10,10,tw+16,20);
-  x.fillStyle=ca;x.fillText(ttl,18,24);
-  x.font='bold 10px system-ui'}
-const hold=(id,k)=>{const e=$('#'+id);e.addEventListener('pointerdown',()=>VST[k]=true);
- ['pointerup','pointerleave','pointercancel'].forEach(ev=>e.addEventListener(ev,()=>VST[k]=false))};
-hold('vsM1','m1');hold('vsM2','m2');
-$('#vsY1').onclick=()=>VST.y1=!VST.y1;$('#vsY2').onclick=()=>VST.y2=!VST.y2;
-$('#vsPump').onclick=()=>{VST.pump=!VST.pump;$('#vsPump').textContent=VST.pump?'⏸ Pump':'▶ Pump';vsLogEv(VST.pump?'Pump STARTED':'Pump STOPPED')};
-$('#vsCfg').onchange=()=>{VST.cfg=$('#vsCfg').value;VST.pos=50;VST.sysP=0;VST.state='';vsLogEv('Config: '+$('#vsCfg').selectedOptions[0].text);vsBtns()};
-$('#vsCenter').onchange=()=>{VST.center=$('#vsCenter').value;VST.state=''};
-$('#vsAct').onchange=()=>{VST.act=$('#vsAct').value;VST.y1=VST.y2=false;vsBtns()};
-$('#vsCsv').onclick=()=>download('induspro_valvelog.csv',csvOf([['Time','Event'],...VST.log]));
-$('#vsClr').onclick=()=>{VST.log=[];LS.s('vsLog',[]);vsLogR()};
-function vsBtns(){const man=VST.act==='man',pil=VST.act==='pil',noB=VST.cfg!=='42'&&VST.cfg!=='43';
- $('#vsM1').disabled=!man;$('#vsM2').disabled=!man||noB;
- $('#vsY1').disabled=man;$('#vsY2').disabled=man||noB;
- $('#vsY1').textContent=pil?'PV1 a':'Y1 a';$('#vsY2').textContent=pil?'PV2 b':'Y2 b';
- $('#vsCenter').disabled=VST.cfg!=='43'}
-vsBtns();
-SIMS.valvesim={start(){if(!VST.timer)VST.timer=setInterval(vsTick,90)},stop(){clearInterval(VST.timer);VST.timer=null}};
+/* ============ 12. BONUS LAB ============ */
+$('#bGo').onclick=()=>{const C=+$('#bC').value,P=Math.max(1,+$('#bP').value),p=+$('#bT').value,N=Math.max(1,+$('#bN').value);
+ const rev=Math.pow(C/P,p)*1e6,hrs=rev/(60*N);
+ $('#bOut').innerHTML='<div class="big">L10 = '+fmt(hrs,0)+' hours</div><table><tr><td>Revolutions</td><td>'+fmt(rev,0)+' rev</td></tr><tr><td>Days @ 24/7</td><td>'+fmt(hrs/24,1)+'</td></tr><tr><td>C/P</td><td>'+fmt(C/P,2)+'</td></tr></table><div class="mut">L10 = (C/P)^p × 10⁶ rev · Ball p=3, Roller p=10/3 · Actual life lubrication &amp; contamination se kam.</div>'};
+$('#gGo').onclick=()=>{const n=+$('#gIn').value,t1=Math.max(1,+$('#gT1').value),t2=Math.max(1,+$('#gT2').value);
+ $('#gOut').innerHTML='<div class="mid">Ratio = '+fmt(t2/t1,3)+' : 1 → '+fmt(n*t1/t2,1)+' rpm out</div><div class="mut">Torque ×'+fmt(t2/t1,2)+' · Speed ÷'+fmt(t2/t1,2)+' (losses ignore)</div>'};
+$('#ledGo').onclick=()=>{const vs=+$('#ledVs').value,vf=+$('#ledVf').value,if_=+$('#ledI').value/1000;
+ const R=(vs-vf)/if_,p=(vs-vf)*if_;
+ $('#ledOut').innerHTML='<div class="mid">R = '+fmt(R,0)+' Ω ('+fmt(R/1000,2)+' kΩ)</div><div class="mut">Power '+fmt(p*1000,0)+' mW · Nearest E12: '+fmt(Math.ceil(R/10)*10,0)+' Ω · Watt ≥ '+(p>0.25?'1/2 W':'1/4 W')+'</div>'};
+$('#btGo').onclick=()=>{const K=+$('#btK').value,D=+$('#btD').value/1000,F=+$('#btF').value,T=K*D*F;
+ $('#btOut').innerHTML='<div class="mid">T = '+fmt(T,1)+' N·m ('+fmt(T*0.7376,1)+' lb·ft)</div><div class="mut">T = K·D·F · K dry 0.20 / lubed 0.15 · Torque wrench ±5% calibration</div>'};
+const PU={bar:1,psi:0.0689476,kPa:0.01,MPa:10,mbar:0.001,'kg/cm²':0.980665,atm:1.01325};
+$('#puGo').onclick=()=>{const v=+$('#puV').value,u=$('#puU').value,b=v*PU[u];
+ $('#puOut').innerHTML='<div class="mid">'+fmt(b,4)+' bar</div><div class="mut">'+fmt(b*14.5038,3)+' psi · '+fmt(b*100,2)+' kPa · '+fmt(b/10,4)+' MPa · '+fmt(b*1000,0)+' mbar · '+fmt(b/0.980665,3)+' kg/cm²</div>'};
+$('#ohGo').onclick=()=>{const V=+$('#ohV').value,I=Math.max(1e-6,+$('#ohI').value);
+ $('#ohOut').innerHTML='<div class="mid">R = '+fmt(V/I,2)+' Ω · P = '+fmt(V*I,1)+' W</div><div class="mut">V = I·R · P = V·I = I²R = V²/R</div>'};
 
 /* ============ INIT ============ */
 activateTab('instruments');
 </script>
 <script>
-/* ============ PLOTLINE HELPER ============ */
-function plotLine(cv,series,opt){
-  if(!cv)return;
-  const[x,W,H]=fitCv(cv);
-  x.clearRect(0,0,W,H);
-  const cs=k=>getComputedStyle(document.body).getPropertyValue(k).trim();
-  const line=cs('--line')||'#24384c',mut=cs('--mut')||'#8fa6ba';
-  x.strokeStyle=line;x.lineWidth=1;
-  x.beginPath();x.moveTo(0,H/2);x.lineTo(W,H/2);x.stroke();
-  if(!series||!series.length)return;
-  let all=[],maxV=-1e9,minV=1e9;
-  series.forEach(s=>{s.data.forEach(v=>{if(isFinite(v)){all.push(v);if(v>maxV)maxV=v;if(v<minV)minV=v}})});
-  if(!all.length)return;
-  if(opt&&opt.hline!==undefined){maxV=Math.max(maxV,opt.hline*1.3);minV=Math.min(minV,0)}
-  const pad=(maxV-minV)*0.1||1;
-  maxV+=pad;minV-=pad;
-  const n=Math.max(...series.map(s=>s.data.length));
-  if(n<2)return;
-  const X=i=>8+i*(W-16)/(n-1);
-  const Y=v=>H-10-((v-minV)/(maxV-minV))*(H-20);
-  if(opt&&opt.hline!==undefined){
-    x.strokeStyle=cs('--warn')||'#f5a623';x.setLineDash([5,4]);
-    x.beginPath();x.moveTo(8,Y(opt.hline));x.lineTo(W-8,Y(opt.hline));x.stroke();
-    x.setLineDash([])}
-  series.forEach(s=>{
-    x.strokeStyle=s.color||'#00e5c3';x.lineWidth=1.8;
-    x.beginPath();
-    s.data.forEach((v,i)=>{if(!isFinite(v))return;i?x.lineTo(X(i),Y(v)):x.moveTo(X(i),Y(v))});
-    x.stroke()});
-}
 /* ============ SWIPE GESTURE NAVIGATION ============ */
 (function(){
   var touchStartX = 0;
@@ -1289,7 +807,7 @@ function plotLine(cv,series,opt){
   var tabIds = [
     'instruments','motors','wires','battery',
     'periodic','bearings','breakers','pneumatic',
-    'valvesim','convert','vibro','rtd'
+    'convert','vibro','rtd','bonus'
   ];
   function getCurrentIndex(){
     var active = document.querySelector('.tabbtn.active');
@@ -1375,10 +893,15 @@ function plotLine(cv,series,opt){
     }, 1500);
   }
 })();
+
 /* ============ PDF BUTTON ============ */
 (function(){
   var pb=document.getElementById('pdfBtn');
-  if(!pb)return;
+  if(!pb){
+    var hd=document.querySelector('header');
+    if(hd){var p=document.createElement('button');p.id='pdfBtn';p.textContent='📄 PDF';p.title='Save as PDF';hd.appendChild(p);pb=p}
+    else return;
+  }
   var ph=document.createElement('div');
   ph.id='printHead';
   ph.style.display='none';
@@ -1394,6 +917,7 @@ function plotLine(cv,series,opt){
     setTimeout(function(){imgs.forEach(function(i){if(i.parentNode)i.parentNode.removeChild(i)})},2500);
   };
 })();
+
 /* ============ PRINT CSS ============ */
 (function(){
   var pcss=document.createElement('style');
@@ -1412,6 +936,7 @@ function plotLine(cv,series,opt){
   '@page{size:A4;margin:10mm}}';
   document.head.appendChild(pcss);
 })();
+
 /* ============ EASTER EGG (OWL) ============ */
 (function(){
   var OWL=['😴 Lazy Boy tip: 3-phase motor ka Inrush 6–8× hota hai — breaker ko magnetic trip D-curve dena!',
