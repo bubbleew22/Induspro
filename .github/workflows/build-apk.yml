@@ -43,9 +43,11 @@ jobs:
           }
           EOF
 
+      - name: Clean old app folder
+        run: rm -rf app
+
       - name: Initialize TWA
         run: |
-          rm -rf app
           bubblewrap init \
             --manifest=https://bubbleew22.github.io/Induspro/manifest.json \
             --directory=app
